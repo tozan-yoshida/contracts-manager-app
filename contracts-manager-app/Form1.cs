@@ -7,29 +7,28 @@ namespace contracts_manager_app
 {
     public partial class Form1 : Form
     {
-        public DataTable contracts;
-        static  // データベースとの接続
-                // 接続文字列作成
-            string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = test2; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
+        public DataTable contacts;
+        // データベースとの接続文字列作成
+        static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
         public Form1()
         {
             InitializeComponent();
 
             // DataTableの初期化
-            contracts = new DataTable();
-            contracts.Columns.Add("id", typeof(int));
-            contracts.Columns.Add("name", typeof(string));
-            contracts.Columns.Add("tel", typeof(string));
-            contracts.Columns.Add("address",  typeof(string));
-            contracts.Columns.Add("remark", typeof(string));
+            contacts = new DataTable();
+            contacts.Columns.Add("id", typeof(int));
+            contacts.Columns.Add("name", typeof(string));
+            contacts.Columns.Add("tel", typeof(string));
+            contacts.Columns.Add("address",  typeof(string));
+            contacts.Columns.Add("remark", typeof(string));
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             // DataGridViewの初期化
             // カラム数を指定
-            dataGridView1.ColumnCount = 4;
+            dataGridView1.DataSource = contacts;
 
             // DataGridViewButtonColumnの作成
             DataGridViewButtonColumn update = new DataGridViewButtonColumn();
@@ -50,13 +49,15 @@ namespace contracts_manager_app
             dataGridView1.Columns.Add(delete);
 
             // カラム名を指定
-            dataGridView1.Columns[0].HeaderText = "名前";
-            dataGridView1.Columns[1].HeaderText = "電話番号";
-            dataGridView1.Columns[2].HeaderText = "メールアドレス";
-            dataGridView1.Columns[3].HeaderText = "備考";
+            dataGridView1.Columns[1].HeaderText = "名前";
+            dataGridView1.Columns[2].HeaderText = "電話番号";
+            dataGridView1.Columns[3].HeaderText = "メールアドレス";
+            dataGridView1.Columns[4].HeaderText = "備考";
 
             // データの追加テスト
-            dataGridView1.Rows.Add("名前", "電話番号", "メールアドレス", "備考");
+            contacts.Rows.Add(1,"田中", "123456789", "nanikasira", "ビコー");
+
+            ScreenDisplay();
 
         }
 
@@ -65,7 +66,36 @@ namespace contracts_manager_app
         /// </summary>
         private void ScreenDisplay()
         {
-           
+            try
+            {
+                using(SqlConnection connection = new SqlConnection(connectionString))
+                {
+
+                    // テーブルの全要素取得コマンドの生成
+                    var cmd  = connection.CreateCommand();
+                    cmd.CommandText = "SELECT * FROM contacts";
+
+                    // db接続
+                    connection.Open();
+                    Debug.WriteLine("接続成功");
+
+                    using (var sdr = cmd.ExecuteReader())
+                    {
+                        if (sdr.HasRows) 
+                        {
+                            while (sdr.Read())
+                            {
+                                contacts.Rows.Add(sdr["id"], sdr["name"].ToString(), sdr["tel"].ToString(), sdr["address"].ToString(), sdr["remark"].ToString());
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch(SqlException ex)
+            {
+                Debug.WriteLine("ｴﾗｰ"+ex.Message);
+            }
 
         }
     }

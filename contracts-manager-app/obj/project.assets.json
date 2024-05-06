@@ -476,9 +476,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\toru_yoshida\\source\\repos\\contracts-manager-app\\contracts-manager-app\\contracts-manager-app.csproj",
-      "projectName": "contracts-manager-app",
-      "projectPath": "C:\\Users\\toru_yoshida\\source\\repos\\contracts-manager-app\\contracts-manager-app\\contracts-manager-app.csproj",
+      "projectUniqueName": "C:\\Users\\toru_yoshida\\source\\repos\\contracts-manager-app\\contracts-manager-app\\contacts-manager-app.csproj",
+      "projectName": "contacts-manager-app",
+      "projectPath": "C:\\Users\\toru_yoshida\\source\\repos\\contracts-manager-app\\contracts-manager-app\\contacts-manager-app.csproj",
       "packagesPath": "C:\\Users\\toru_yoshida\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\toru_yoshida\\source\\repos\\contracts-manager-app\\contracts-manager-app\\obj\\",
       "projectStyle": "PackageReference",

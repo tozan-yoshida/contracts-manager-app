@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "jc9yrgezYYtWEBTCcAiRx7x05X0D3G5KXCLn123Oa0rvv+bI8FBIpOlAT3fEL6r5/ZJ1XdMuLqCq9hidtmLucQ==",
+  "dgSpecHash": "S+gGXp2LdketEt/joypUJpctw+L1K7ZozVTOLiTysHKqgqQV6GG2GRChoTq5Q5jBw8Ei3lvmYm4wIqeLvwWfIQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\toru_yoshida\\source\\repos\\contracts-manager-app\\contracts-manager-app\\contracts-manager-app.csproj",
+  "projectFilePath": "C:\\Users\\toru_yoshida\\source\\repos\\contracts-manager-app\\contracts-manager-app\\contacts-manager-app.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\toru_yoshida\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.0\\microsoft.netcore.platforms.3.1.0.nupkg.sha512",
     "C:\\Users\\toru_yoshida\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",
