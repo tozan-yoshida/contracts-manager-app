@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("contracts-manager-app")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1bf3bc6d29203a8c74feadb1b94d7eadf6e9d37d")]
 [assembly: System.Reflection.AssemblyProductAttribute("contracts-manager-app")]
 [assembly: System.Reflection.AssemblyTitleAttribute("contracts-manager-app")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
