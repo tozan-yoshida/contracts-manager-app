@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -6,9 +7,22 @@ namespace contracts_manager_app
 {
     public partial class Form1 : Form
     {
+        public DataTable contracts;
+        static  // データベースとの接続
+                // 接続文字列作成
+            string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = test2; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
+
         public Form1()
         {
             InitializeComponent();
+
+            // DataTableの初期化
+            contracts = new DataTable();
+            contracts.Columns.Add("id", typeof(int));
+            contracts.Columns.Add("name", typeof(string));
+            contracts.Columns.Add("tel", typeof(string));
+            contracts.Columns.Add("address",  typeof(string));
+            contracts.Columns.Add("remark", typeof(string));
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -43,22 +57,6 @@ namespace contracts_manager_app
 
             // データの追加テスト
             dataGridView1.Rows.Add("名前", "電話番号", "メールアドレス", "備考");
-
-            // データベースとの接続
-            // 接続文字列作成
-            string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = test2; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    Debug.WriteLine("接続成功");
-                }
-            }
-            catch(SqlException exception){
-                Debug.WriteLine("接続エラー" + exception.Message);
-            }
-
 
         }
 
