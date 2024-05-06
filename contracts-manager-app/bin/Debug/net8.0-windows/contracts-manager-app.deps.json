@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "contracts-manager-app/1.0.0": {
+        "runtime": {
+          "contracts-manager-app.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "contracts-manager-app/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

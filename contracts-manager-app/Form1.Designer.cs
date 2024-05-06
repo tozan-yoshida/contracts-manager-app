@@ -28,51 +28,52 @@
         /// </summary>
         private void InitializeComponent()
         {
-            textBox1 = new TextBox();
-            button1 = new Button();
-            button2 = new Button();
-            button3 = new Button();
+            searchBox = new TextBox();
+            search = new Button();
+            register = new Button();
+            import = new Button();
             dataGridView1 = new DataGridView();
-            button4 = new Button();
+            export = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
-            // textBox1
+            // searchBox
             // 
-            textBox1.Location = new Point(421, 92);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(304, 31);
-            textBox1.TabIndex = 0;
+            searchBox.Location = new Point(421, 92);
+            searchBox.Name = "searchBox";
+            searchBox.Size = new Size(304, 31);
+            searchBox.TabIndex = 0;
             // 
-            // button1
+            // search
             // 
-            button1.Location = new Point(731, 92);
-            button1.Name = "button1";
-            button1.Size = new Size(57, 31);
-            button1.TabIndex = 1;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
+            search.Location = new Point(731, 92);
+            search.Name = "search";
+            search.Size = new Size(57, 31);
+            search.TabIndex = 1;
+            search.Text = "検索";
+            search.UseVisualStyleBackColor = true;
             // 
-            // button2
+            // register
             // 
-            button2.Location = new Point(12, 77);
-            button2.Name = "button2";
-            button2.Size = new Size(104, 60);
-            button2.TabIndex = 2;
-            button2.Text = "button2";
-            button2.UseVisualStyleBackColor = true;
+            register.Location = new Point(12, 77);
+            register.Name = "register";
+            register.Size = new Size(104, 60);
+            register.TabIndex = 2;
+            register.Text = "新規追加";
+            register.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // import
             // 
-            button3.Location = new Point(122, 77);
-            button3.Name = "button3";
-            button3.Size = new Size(104, 60);
-            button3.TabIndex = 3;
-            button3.Text = "button3";
-            button3.UseVisualStyleBackColor = true;
+            import.Location = new Point(122, 77);
+            import.Name = "import";
+            import.Size = new Size(104, 60);
+            import.TabIndex = 3;
+            import.Text = "インポート";
+            import.UseVisualStyleBackColor = true;
             // 
             // dataGridView1
             // 
+            dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView1.Location = new Point(12, 143);
             dataGridView1.Name = "dataGridView1";
@@ -80,28 +81,29 @@
             dataGridView1.Size = new Size(776, 295);
             dataGridView1.TabIndex = 4;
             // 
-            // button4
+            // export
             // 
-            button4.Location = new Point(232, 77);
-            button4.Name = "button4";
-            button4.Size = new Size(104, 60);
-            button4.TabIndex = 5;
-            button4.Text = "button4";
-            button4.UseVisualStyleBackColor = true;
+            export.Location = new Point(232, 77);
+            export.Name = "export";
+            export.Size = new Size(104, 60);
+            export.TabIndex = 5;
+            export.Text = "エクスポート";
+            export.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(button4);
+            Controls.Add(export);
             Controls.Add(dataGridView1);
-            Controls.Add(button3);
-            Controls.Add(button2);
-            Controls.Add(button1);
-            Controls.Add(textBox1);
+            Controls.Add(import);
+            Controls.Add(register);
+            Controls.Add(search);
+            Controls.Add(searchBox);
             Name = "Form1";
             Text = "Form1";
+            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -109,11 +111,11 @@
 
         #endregion
 
-        private TextBox textBox1;
-        private Button button1;
-        private Button button2;
-        private Button button3;
+        private TextBox searchBox;
+        private Button search;
+        private Button register;
+        private Button import;
         private DataGridView dataGridView1;
-        private Button button4;
+        private Button export;
     }
 }
