@@ -15,3 +15,11 @@ C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\o
 C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\contracts-manager-app.pdb
 C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\contracts-manager-app.genruntimeconfig.cache
 C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\ref\contracts-manager-app.dll
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\bin\Debug\net8.0-windows\System.Data.SqlClient.dll
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\bin\Debug\net8.0-windows\runtimes\win-arm64\native\sni.dll
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\bin\Debug\net8.0-windows\runtimes\win-x64\native\sni.dll
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\bin\Debug\net8.0-windows\runtimes\win-x86\native\sni.dll
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\bin\Debug\net8.0-windows\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\bin\Debug\net8.0-windows\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\contracts-manager-app.csproj.AssemblyReference.cache
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\contract.71CD0898.Up2Date
