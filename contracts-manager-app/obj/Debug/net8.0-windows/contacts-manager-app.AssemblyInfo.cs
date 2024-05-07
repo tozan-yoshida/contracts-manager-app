@@ -11,12 +11,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("contracts-manager-app")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("contacts-manager-app")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+275b547e115f21b5960e52bde48831e48b020359")]
-[assembly: System.Reflection.AssemblyProductAttribute("contracts-manager-app")]
-[assembly: System.Reflection.AssemblyTitleAttribute("contracts-manager-app")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ff5318cf7fcb4c37df3d4d0413c2276773c35dfc")]
+[assembly: System.Reflection.AssemblyProductAttribute("contacts-manager-app")]
+[assembly: System.Reflection.AssemblyTitleAttribute("contacts-manager-app")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 [assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows7.0")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]
