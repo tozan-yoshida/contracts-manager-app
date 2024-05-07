@@ -105,7 +105,8 @@ namespace contracts_manager_app
 
         private void register_Click(object sender, EventArgs e)
         {
-
+            Form2 f2 = new Form2();
+            f2.Show();
         }
     }
 }

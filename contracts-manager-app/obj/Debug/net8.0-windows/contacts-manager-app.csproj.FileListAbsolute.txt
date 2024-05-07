@@ -23,3 +23,4 @@ C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\o
 C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\contacts-manager-app.pdb
 C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\contacts-manager-app.genruntimeconfig.cache
 C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\ref\contacts-manager-app.dll
+C:\Users\toru_yoshida\source\repos\contracts-manager-app\contracts-manager-app\obj\Debug\net8.0-windows\contracts_manager_app.Form2.resources
