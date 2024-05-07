@@ -37,7 +37,7 @@ namespace contracts_manager_app
             // ‰Šúó‘Ô‚ÍV‹K“o˜^
             update = false;
 
-            f2 = new Form2();
+            f2 = new Form2(this);
 
             id = "";
             name = "";
