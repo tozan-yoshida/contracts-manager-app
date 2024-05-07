@@ -39,14 +39,16 @@
             // 
             // searchBox
             // 
-            searchBox.Location = new Point(421, 92);
+            searchBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            searchBox.Location = new Point(704, 92);
             searchBox.Name = "searchBox";
             searchBox.Size = new Size(304, 31);
             searchBox.TabIndex = 0;
             // 
             // search
             // 
-            search.Location = new Point(731, 92);
+            search.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            search.Location = new Point(1014, 92);
             search.Name = "search";
             search.Size = new Size(57, 31);
             search.TabIndex = 1;
@@ -61,6 +63,7 @@
             register.TabIndex = 2;
             register.Text = "新規追加";
             register.UseVisualStyleBackColor = true;
+            register.Click += register_Click;
             // 
             // import
             // 
@@ -78,7 +81,7 @@
             dataGridView1.Location = new Point(12, 143);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 62;
-            dataGridView1.Size = new Size(776, 295);
+            dataGridView1.Size = new Size(1059, 579);
             dataGridView1.TabIndex = 4;
             // 
             // export
@@ -94,7 +97,7 @@
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(1083, 734);
             Controls.Add(export);
             Controls.Add(dataGridView1);
             Controls.Add(import);

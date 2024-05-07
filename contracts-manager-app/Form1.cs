@@ -20,7 +20,7 @@ namespace contracts_manager_app
             contacts.Columns.Add("id", typeof(int));
             contacts.Columns.Add("name", typeof(string));
             contacts.Columns.Add("tel", typeof(string));
-            contacts.Columns.Add("address",  typeof(string));
+            contacts.Columns.Add("address", typeof(string));
             contacts.Columns.Add("remark", typeof(string));
         }
 
@@ -54,25 +54,29 @@ namespace contracts_manager_app
             dataGridView1.Columns[3].HeaderText = "メールアドレス";
             dataGridView1.Columns[4].HeaderText = "備考";
 
+            // はじめの列を非表示にする
+            dataGridView1.Columns[0].Visible = false;
+
+
             // データの追加テスト
-            contacts.Rows.Add(1,"田中", "123456789", "nanikasira", "ビコー");
+            contacts.Rows.Add(1, "田中", "123456789", "nanikasira", "ビコー");
 
             ScreenDisplay();
 
         }
 
         /// <summary>
-        /// 画面を（再）表示する
+        /// DataGridViewの表を(再)取得する
         /// </summary>
         private void ScreenDisplay()
         {
             try
             {
-                using(SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
 
                     // テーブルの全要素取得コマンドの生成
-                    var cmd  = connection.CreateCommand();
+                    var cmd = connection.CreateCommand();
                     cmd.CommandText = "SELECT * FROM contacts";
 
                     // db接続
@@ -81,7 +85,7 @@ namespace contracts_manager_app
 
                     using (var sdr = cmd.ExecuteReader())
                     {
-                        if (sdr.HasRows) 
+                        if (sdr.HasRows)
                         {
                             while (sdr.Read())
                             {
@@ -92,10 +96,15 @@ namespace contracts_manager_app
 
                 }
             }
-            catch(SqlException ex)
+            catch (SqlException ex)
             {
-                Debug.WriteLine("ｴﾗｰ"+ex.Message);
+                Debug.WriteLine("ｴﾗｰ" + ex.Message);
             }
+
+        }
+
+        private void register_Click(object sender, EventArgs e)
+        {
 
         }
     }
