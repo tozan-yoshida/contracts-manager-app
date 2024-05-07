@@ -26,5 +26,15 @@ namespace contracts_manager_app
         {
 
         }
+
+        private void registOrUpdate_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        public void LabelChanger(string buttonName)
+        {
+            registOrUpdate.Text = buttonName;
+        }
     }
 }

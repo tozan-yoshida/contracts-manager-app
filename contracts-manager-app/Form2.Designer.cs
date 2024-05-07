@@ -45,9 +45,8 @@
             registOrUpdate.Name = "registOrUpdate";
             registOrUpdate.Size = new Size(112, 34);
             registOrUpdate.TabIndex = 0;
-            registOrUpdate.Text = "button1";
             registOrUpdate.UseVisualStyleBackColor = true;
-            registOrUpdate.Click += button1_Click;
+            registOrUpdate.Click += registOrUpdate_Click;
             // 
             // nameBox
             // 

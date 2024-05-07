@@ -11,6 +11,16 @@ namespace contracts_manager_app
         // データベースとの接続文字列作成
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
+        public bool update; // 編集か新規登録かの分岐
+        public bool error;
+        private Form2 f2;
+
+        public int id { get; }
+        public string name { get; }
+        public string tel { get; }
+        public string address {  get; }
+        public string remark {  get; }
+
         public Form1()
         {
             InitializeComponent();
@@ -22,6 +32,17 @@ namespace contracts_manager_app
             contacts.Columns.Add("tel", typeof(string));
             contacts.Columns.Add("address", typeof(string));
             contacts.Columns.Add("remark", typeof(string));
+
+            // 初期状態は新規登録
+            update = false;
+
+            f2 = new Form2();
+
+            id = 0;
+            name = "";
+            tel = "";
+            address = "";
+            remark = "";
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -31,22 +52,22 @@ namespace contracts_manager_app
             dataGridView1.DataSource = contacts;
 
             // DataGridViewButtonColumnの作成
-            DataGridViewButtonColumn update = new DataGridViewButtonColumn();
-            DataGridViewButtonColumn delete = new DataGridViewButtonColumn();
+            DataGridViewButtonColumn updateButton = new DataGridViewButtonColumn();
+            DataGridViewButtonColumn deleteButton = new DataGridViewButtonColumn();
 
             // 列の名前を設定
-            update.Name = "編集";
-            delete.Name = "削除";
+            updateButton.Name = "編集";
+            deleteButton.Name = "削除";
 
             // すべてのボタンに"編集"、"削除"と表示する
-            update.UseColumnTextForButtonValue = true;
-            delete.UseColumnTextForButtonValue = true;
-            update.Text = "編集";
-            delete.Text = "削除";
+            updateButton.UseColumnTextForButtonValue = true;
+            deleteButton.UseColumnTextForButtonValue = true;
+            updateButton.Text = "編集";
+            deleteButton.Text = "削除";
 
             // DataGridViewに追加する
-            dataGridView1.Columns.Add(update);
-            dataGridView1.Columns.Add(delete);
+            dataGridView1.Columns.Add(updateButton);
+            dataGridView1.Columns.Add(deleteButton);
 
             // カラム名を指定
             dataGridView1.Columns[1].HeaderText = "名前";
@@ -105,8 +126,25 @@ namespace contracts_manager_app
 
         private void register_Click(object sender, EventArgs e)
         {
-            Form2 f2 = new Form2();
+            update = false;
+            f2.LabelChanger("登録");
+            f2.ShowDialog();
+        }
+
+        private void RegistOrUpdate(bool update)
+        {
+            error = false;
+            if(update)
+            {
+                f2.LabelChanger("更新");
+            }
+            else
+            {
+                f2.LabelChanger("登録");
+            }
+
             f2.Show();
+
         }
     }
 }
