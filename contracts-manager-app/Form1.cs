@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace contracts_manager_app
 {
@@ -163,6 +164,43 @@ namespace contracts_manager_app
 
                 // 画面遷移
                 f2.ShowDialog();
+            }
+            // "削除"ボタンを押したときの処理
+            else if(dgv.Columns[e.ColumnIndex].Name == "削除")
+            {
+                DialogResult result = MessageBox.Show("連絡先を削除しますか？", "質問", 
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
+
+                // OKを押したときの処理
+                if (result == DialogResult.OK)
+                {
+                    try
+                    {
+                        using(SqlConnection conn = new SqlConnection(connectionString))
+                        {
+                            // 削除したい行のidを取得
+                            id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
+                            // クエリ文作成
+                            string cmdtest = "DELETE FROM contacts WHERE id = " + id;
+
+                            using (var cmd =  new SqlCommand(cmdtest, conn)) {
+                                // db接続
+                                conn.Open();
+                                // クエリ文実行
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                    finally
+                    {
+                        // 画面の再表示
+                        ScreenDisplay();
+                    }
+                }
             }
         }
     }
