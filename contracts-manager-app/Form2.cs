@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -35,6 +36,21 @@ namespace contracts_manager_app
         public void LabelChanger(string buttonName)
         {
             registOrUpdate.Text = buttonName;
+        }
+
+        /// <summary>
+        /// テキストボックスを事前に入力状態にしておくためのメソッド
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="tel"></param>
+        /// <param name="address"></param>
+        /// <param name="remark"></param>
+        public void TextBoxRegester(string name, string tel, string address, string remark)
+        {
+            nameBox.Text = name;
+            telBox.Text = tel;
+            addressBox.Text = address;
+            remarkBox.Text = remark;
         }
     }
 }

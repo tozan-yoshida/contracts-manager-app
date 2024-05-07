@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace contracts_manager_app
 {
@@ -15,11 +16,11 @@ namespace contracts_manager_app
         public bool error;
         private Form2 f2;
 
-        public int id { get; }
-        public string name { get; }
-        public string tel { get; }
-        public string address {  get; }
-        public string remark {  get; }
+        public string id { get; set; }
+        public string name { get; set; }
+        public string tel { get; set; }
+        public string address { get; set; }
+        public string remark { get; set; }
 
         public Form1()
         {
@@ -38,7 +39,7 @@ namespace contracts_manager_app
 
             f2 = new Form2();
 
-            id = 0;
+            id = "";
             name = "";
             tel = "";
             address = "";
@@ -124,6 +125,9 @@ namespace contracts_manager_app
 
         }
 
+        /// <summary>
+        /// 新規登録ボタンを押した時の処理
+        /// </summary>
         private void register_Click(object sender, EventArgs e)
         {
             update = false;
@@ -131,20 +135,73 @@ namespace contracts_manager_app
             f2.ShowDialog();
         }
 
-        private void RegistOrUpdate(bool update)
+
+        /// <summary>
+        /// 編集、削除ボタンを押したときの処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            error = false;
-            if(update)
+            var dgv = (DataGridView)sender;
+            // "編集"ボタンを押したときの処理
+            if (dgv.Columns[e.ColumnIndex].Name == "編集")
             {
+                // 編集、更新画面のボタンの表記を"更新"に変更
                 f2.LabelChanger("更新");
+                // 押された"編集"ボタンの行の情報取得、格納
+                id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
+                name = dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString();
+                tel = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
+                address = dataGridView1.Rows[e.RowIndex].Cells[3].Value.ToString();
+                if (dataGridView1.Rows[e.RowIndex].Cells[4].Value != null) remark = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
+
+                // 正しく取得できているかのテスト
+                // MessageBox.Show( id + name + tel + address + remark);
+
+                // 遷移先の画面のテキストボックスに自動的に入力
+                f2.TextBoxRegester(name, tel, address, remark);
+
+                // 画面遷移
+                f2.ShowDialog();
             }
-            else
+            // "削除"ボタンを押したときの処理
+            else if(dgv.Columns[e.ColumnIndex].Name == "削除")
             {
-                f2.LabelChanger("登録");
+                DialogResult result = MessageBox.Show("連絡先を削除しますか？", "質問", 
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
+
+                // OKを押したときの処理
+                if (result == DialogResult.OK)
+                {
+                    try
+                    {
+                        using(SqlConnection conn = new SqlConnection(connectionString))
+                        {
+                            // 削除したい行のidを取得
+                            id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
+                            // クエリ文作成
+                            string cmdtest = "DELETE FROM contacts WHERE id = " + id;
+
+                            using (var cmd =  new SqlCommand(cmdtest, conn)) {
+                                // db接続
+                                conn.Open();
+                                // クエリ文実行
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                    finally
+                    {
+                        // 画面の再表示
+                        ScreenDisplay();
+                    }
+                }
             }
-
-            f2.Show();
-
         }
     }
 }
