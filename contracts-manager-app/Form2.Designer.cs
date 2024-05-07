@@ -87,39 +87,38 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(183, 94);
+            label1.Location = new Point(105, 91);
             label1.Name = "label1";
             label1.Size = new Size(48, 25);
             label1.TabIndex = 5;
             label1.Text = "名前";
-            label1.Click += label1_Click;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(183, 156);
+            label2.Location = new Point(105, 153);
             label2.Name = "label2";
-            label2.Size = new Size(84, 25);
+            label2.Size = new Size(168, 25);
             label2.TabIndex = 6;
-            label2.Text = "電話番号";
+            label2.Text = "電話番号(15字以内)";
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(183, 277);
+            label3.Location = new Point(105, 274);
             label3.Name = "label3";
-            label3.Size = new Size(96, 25);
+            label3.Size = new Size(132, 25);
             label3.TabIndex = 7;
-            label3.Text = "備考(30字)";
+            label3.Text = "備考(30字以内)";
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(183, 218);
+            label4.Location = new Point(105, 215);
             label4.Name = "label4";
-            label4.Size = new Size(106, 25);
+            label4.Size = new Size(190, 25);
             label4.TabIndex = 8;
-            label4.Text = "メールアドレス";
+            label4.Text = "メールアドレス(30字以内)";
             // 
             // nameError
             // 

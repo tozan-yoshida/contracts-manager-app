@@ -15,9 +15,12 @@ namespace contracts_manager_app
     public partial class Form2 : Form
     {
 
-        private bool error { get; set; } = false;
+        
         public bool update { get; set; } = false;
         private Form1 f1;
+        static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
+
+
 
         public Form2(Form1 f1)
         {
@@ -25,35 +28,57 @@ namespace contracts_manager_app
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void registOrUpdate_Click(object sender, EventArgs e)
         {
             // 諸々初期化
-            error = false;
+            bool error = false;
             nameError.Text = string.Empty;
             telError.Text = string.Empty;
             addressError.Text = string.Empty;
             remarkError.Text = string.Empty;
 
 
+            // エラー判定
+
             // 名称エラー判定
             // 名前が入力されているか
             if (nameBox.Text.Length >= 1)
             {
+                List<string> idList = new List<string>();
                 // 名前が同一の行を連絡先テーブルから抽出、リスト化
+                foreach (DataRow dr in f1.contacts.Rows)
+                {
+                    if (dr["name"].Equals(nameBox.Text))
+                    {
+                        idList.Add(dr["id"].ToString());
+                    }
+                }
 
+                // 更新の場合
                 if (update)
                 {
-
+                    // idが別で同じ名前のオブジェクトが存在しているか
+                    foreach (var item in idList)
+                    {
+                        // している場合重複エラー
+                        if(!item.Equals(f1.id))
+                        {
+                            error = true;
+                            nameError.Text = "この名前は既に登録されています";
+                            break;
+                        }
+                    }
+                }
+                // 新規登録の場合
+                else
+                {
+                    // 同じ名前のオブジェクトが存在している場合、重複エラー
+                    if (idList.Any())
+                    {
+                        error = true;
+                        nameError.Text = "この名前は既に登録されています";
+                    }
                 }
             }
             else
@@ -90,8 +115,9 @@ namespace contracts_manager_app
                 remarkError.Text = "備考は30字以内である必要があります";
             }
 
-            if (error) return;
-            else
+            // エラーが一つも起きていないときに限り下の処理を行う
+            // 新規登録、更新処理
+            if (!error)            
             {
                 // 入力情報をdbにmerge into
 
@@ -125,8 +151,6 @@ namespace contracts_manager_app
         /// <summary>
         /// 電話番号のテキストボックスの入力制限設定
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void telBox_KeyPress(object sender, KeyPressEventArgs e)
         {
             // バックスペースが押された時は有効(Deleteキーも有効)

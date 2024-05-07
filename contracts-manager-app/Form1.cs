@@ -8,12 +8,10 @@ namespace contracts_manager_app
 {
     public partial class Form1 : Form
     {
-        public DataTable contacts;
+        public DataTable contacts { get; set; }
         // データベースとの接続文字列作成
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
-        public bool update; // 編集か新規登録かの分岐
-        public bool error;
         private Form2 f2;
 
         public string id { get; set; }
@@ -35,7 +33,6 @@ namespace contracts_manager_app
             contacts.Columns.Add("remark", typeof(string));
 
             // 初期状態は新規登録
-            update = false;
 
             f2 = new Form2(this);
 
@@ -130,7 +127,7 @@ namespace contracts_manager_app
         /// </summary>
         private void register_Click(object sender, EventArgs e)
         {
-            update = false;
+            f2.update = false;
             f2.LabelChanger("登録");
             f2.ShowDialog();
         }
@@ -149,6 +146,7 @@ namespace contracts_manager_app
             {
                 // 編集、更新画面のボタンの表記を"更新"に変更
                 f2.LabelChanger("更新");
+                f2.update = true;
                 // 押された"編集"ボタンの行の情報取得、格納
                 id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
                 name = dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString();
@@ -165,6 +163,7 @@ namespace contracts_manager_app
                 // 画面遷移
                 f2.ShowDialog();
             }
+
             // "削除"ボタンを押したときの処理
             else if(dgv.Columns[e.ColumnIndex].Name == "削除")
             {
