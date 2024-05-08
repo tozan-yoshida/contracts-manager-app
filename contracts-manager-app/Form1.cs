@@ -237,7 +237,7 @@ namespace contracts_manager_app
         /// <param name="e"></param>
         private void export_Click(object sender, EventArgs e)
         {
-            if(contacts.Rows.Count > 0)
+            if (contacts.Rows.Count > 0)
             {
                 // 日時取得
                 DateTime dt = DateTime.Now;
@@ -252,12 +252,12 @@ namespace contracts_manager_app
 
                 // 書き込むファイルを開く
                 StreamWriter sr = new StreamWriter(csvPath, false, enc);
-                
+
                 int colCount = contacts.Columns.Count;
                 int lastColIndex = colCount - 1;
 
                 // ヘッダを書き込む
-                for(int i = 0; i < colCount; i++)
+                for (int i = 0; i < colCount; i++)
                 {
                     // ヘッダの取得
                     string field = contacts.Columns[i].Caption;
@@ -266,17 +266,17 @@ namespace contracts_manager_app
                     // フィールドを書き込む
                     sr.Write(field);
                     // カンマを書き込む
-                    if(lastColIndex > i)
+                    if (lastColIndex > i)
                     {
                         sr.Write(',');
                     }
-                    
+
                 }
                 // 改行する
                 sr.Write("\r\n");
 
                 // レコードを書き込む
-                foreach(DataRow row in contacts.Rows)
+                foreach (DataRow row in contacts.Rows)
                 {
                     for (int i = 0; i < colCount; i++)
                     {
@@ -287,7 +287,7 @@ namespace contracts_manager_app
                         // フィールドを書き込む
                         sr.Write(field);
                         // カンマを書き込む
-                        if(lastColIndex > i)
+                        if (lastColIndex > i)
                         {
                             sr.Write(',');
                         }
@@ -322,7 +322,7 @@ namespace contracts_manager_app
         /// </summary>
         private string EncloseDoubleQuotes(string field)
         {
-            if(field.IndexOf('"') > -1)
+            if (field.IndexOf('"') > -1)
             {
                 //"を""とする
                 field = field.Replace("\"", "\"\"");
@@ -343,6 +343,111 @@ namespace contracts_manager_app
                 field.StartsWith("\t") ||
                 field.EndsWith(" ") ||
                 field.EndsWith("\t");
+        }
+
+        /// <summary>
+        /// インポートボタン押下時のイベント
+        /// </summary>
+        private void import_Click(object sender, EventArgs e)
+        {
+            // CSVファイルを読み取る時に使うEncoding
+            System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
+
+            // 読み込みたいCSVファイルをダイアログより選択して開く
+            using (StreamReader sr = new StreamReader(DialogOpen(), enc, false))
+            {
+                // 1行目ではないかどうか
+                // 1行目はヘッダーになっているため読み込んではいけない
+                bool notFirst = false;
+                // 末尾まで繰り返す
+                while(!sr.EndOfStream)
+                {
+                    // CSVファイルの1行を読み込む
+                    string line = sr.ReadLine();
+
+                    // 2行目以降の場合
+                    if (notFirst)
+                    {
+                        // 読み込んだ1行をカンマ事に分けて配列に格納する
+                        string[] values = line.Split(',');
+
+                        // 配列からリストに格納する
+                        List<string> lists = new List<string>();
+                        lists.AddRange(values);
+
+                        // リストからDBにインポート
+                        importDB(lists);
+                    }
+                    notFirst = true;
+                }
+                // 画面の更新
+                ScreenDisplay();
+            }
+
+        }
+
+        private string DialogOpen()
+        {
+            // OpenFileDialogクラスのインスタンスを作成
+            OpenFileDialog ofd = new OpenFileDialog();
+
+            //ファイルの種類に表示される選択肢を指定する
+            ofd.Filter = "csvファイル(*.csv)|*.csv";
+            // ファイルの種類ではじめに選択されるものを指定する
+            ofd.FilterIndex = 0;
+            // タイトルを設定する
+            ofd.Title = "開くファイルを選択してください";
+            // ダイアログボックスを閉じる前に現在のディレクトリを復元するようにする
+            ofd.RestoreDirectory = true;
+
+            // ダイアログを表示する
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+            }
+
+            return ofd.FileName;
+        }
+
+        /// <summary>
+        /// データベースにインポートする際のクエリの処理
+        /// </summary>
+        /// <param name="lists"></param>
+        private void importDB(List<string> lists)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    // クエリ文作成
+                    string cmdtxt = "SET IDENTITY_INSERT contacts ON " +
+                                    "MERGE INTO contacts AS target " +
+                                    "USING " +
+                                        "(VALUES (" + lists[0] + ",'" + lists[1] + "','" + lists[2] + "','" + lists[3] + "','" + lists[4] + "')" +
+                                        ")AS source(id, name, tel, address, remark) " +
+                                    "ON target.id = source.id " +
+                                    "WHEN MATCHED THEN " +
+                                        "UPDATE SET target.name = source.name, " +
+                                        "target.tel = source.tel, " +
+                                        "target.address = source.address, " +
+                                        "target.remark = source.remark " +
+                                    "WHEN NOT MATCHED THEN " +
+                                        "INSERT(id, name, tel, address, remark) " +
+                                        "VALUES(source.id, source.name, source.tel, source.address, source.remark); " +
+                                  "SET IDENTITY_INSERT contacts OFF";
+
+                    // MessageBox.Show(cmdtxt);
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        conn.Open();
+                        cmd.CommandText = cmdtxt;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
         }
     }
 }
