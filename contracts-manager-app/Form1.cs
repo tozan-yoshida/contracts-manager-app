@@ -93,6 +93,8 @@ namespace contracts_manager_app
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
+                    // 表示の初期化
+                    contacts.Clear();
 
                     // テーブルの全要素取得コマンドの生成
                     var cmd = connection.CreateCommand();
