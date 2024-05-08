@@ -35,13 +35,14 @@
             dataGridView1 = new DataGridView();
             export = new Button();
             searchError = new Label();
+            re = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
             // searchBox
             // 
             searchBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            searchBox.Location = new Point(704, 92);
+            searchBox.Location = new Point(704, 80);
             searchBox.Name = "searchBox";
             searchBox.Size = new Size(304, 31);
             searchBox.TabIndex = 0;
@@ -49,7 +50,7 @@
             // search
             // 
             search.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            search.Location = new Point(1014, 92);
+            search.Location = new Point(1014, 80);
             search.Name = "search";
             search.Size = new Size(57, 31);
             search.TabIndex = 1;
@@ -59,7 +60,7 @@
             // 
             // register
             // 
-            register.Location = new Point(12, 77);
+            register.Location = new Point(12, 65);
             register.Name = "register";
             register.Size = new Size(104, 60);
             register.TabIndex = 2;
@@ -69,7 +70,7 @@
             // 
             // import
             // 
-            import.Location = new Point(122, 77);
+            import.Location = new Point(122, 65);
             import.Name = "import";
             import.Size = new Size(104, 60);
             import.TabIndex = 3;
@@ -90,7 +91,7 @@
             // 
             // export
             // 
-            export.Location = new Point(232, 77);
+            export.Location = new Point(232, 65);
             export.Name = "export";
             export.Size = new Size(104, 60);
             export.TabIndex = 5;
@@ -108,11 +109,22 @@
             searchError.TabIndex = 6;
             searchError.Text = "  ";
             // 
+            // re
+            // 
+            re.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            re.Location = new Point(1014, 117);
+            re.Name = "re";
+            re.Size = new Size(57, 31);
+            re.TabIndex = 7;
+            re.Text = "検索";
+            re.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1083, 734);
+            Controls.Add(re);
             Controls.Add(searchError);
             Controls.Add(export);
             Controls.Add(dataGridView1);
@@ -137,5 +149,6 @@
         private DataGridView dataGridView1;
         private Button export;
         private Label searchError;
+        private Button re;
     }
 }

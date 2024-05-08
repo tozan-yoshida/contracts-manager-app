@@ -137,8 +137,9 @@ namespace contracts_manager_app
         {
             id = "0";
             f2.update = false;
+            // ƒ{ƒ^ƒ“‚Ì•\¦‚ğ"“o˜^"‚É•ÏX
             f2.LabelChanger("“o˜^");
-            f2.ShowDialog();
+            f2.ShowDialogPlus();
         }
 
 
@@ -170,7 +171,7 @@ namespace contracts_manager_app
                 f2.TextBoxRegester(name, tel, address, remark);
 
                 // ‰æ–Ê‘JˆÚ
-                f2.ShowDialog();
+                f2.ShowDialogPlus();
             }
 
             // "íœ"ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
