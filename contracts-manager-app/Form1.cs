@@ -9,6 +9,9 @@ namespace contracts_manager_app
     public partial class Form1 : Form
     {
         public DataTable contacts { get; set; }
+
+        public DataTable searchedDT { get; set; }
+
         // データベースとの接続文字列作成
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
@@ -31,6 +34,8 @@ namespace contracts_manager_app
             contacts.Columns.Add("tel", typeof(string));
             contacts.Columns.Add("address", typeof(string));
             contacts.Columns.Add("remark", typeof(string));
+
+            searchedDT = new DataTable();
 
             // 初期状態は新規登録
 
@@ -129,6 +134,7 @@ namespace contracts_manager_app
         /// </summary>
         private void register_Click(object sender, EventArgs e)
         {
+            id = "0";
             f2.update = false;
             f2.LabelChanger("登録");
             f2.ShowDialog();
@@ -167,9 +173,9 @@ namespace contracts_manager_app
             }
 
             // "削除"ボタンを押したときの処理
-            else if(dgv.Columns[e.ColumnIndex].Name == "削除")
+            else if (dgv.Columns[e.ColumnIndex].Name == "削除")
             {
-                DialogResult result = MessageBox.Show("連絡先を削除しますか？", "質問", 
+                DialogResult result = MessageBox.Show("連絡先を削除しますか？", "質問",
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
 
                 // OKを押したときの処理
@@ -177,14 +183,15 @@ namespace contracts_manager_app
                 {
                     try
                     {
-                        using(SqlConnection conn = new SqlConnection(connectionString))
+                        using (SqlConnection conn = new SqlConnection(connectionString))
                         {
                             // 削除したい行のidを取得
                             id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
                             // クエリ文作成
                             string cmdtest = "DELETE FROM contacts WHERE id = " + id;
 
-                            using (var cmd =  new SqlCommand(cmdtest, conn)) {
+                            using (var cmd = new SqlCommand(cmdtest, conn))
+                            {
                                 // db接続
                                 conn.Open();
                                 // クエリ文実行
@@ -192,7 +199,7 @@ namespace contracts_manager_app
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message);
                     }
@@ -202,6 +209,25 @@ namespace contracts_manager_app
                         ScreenDisplay();
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// 検索ボタンをクリックしたときのイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void search_Click(object sender, EventArgs e)
+        {
+            // 文字列が入力されている場合
+            if (searchBox.Text.Length > 0)
+            {
+                // データにフィルターをかける
+                // 条件はテキストボックスの文字列が名前、電話番号、メールアドレス、備考のいずれかの一部もしくは全部に一致
+                contacts.DefaultView.RowFilter = "name LIKE '%" + searchBox.Text + "%' " +
+                                                 "OR tel LIKE'%" + searchBox.Text + "%' " +
+                                                 "OR address LIKE'%" + searchBox.Text + "%' " +
+                                                 "OR remark LIKE'%" + searchBox.Text + "%' ";
             }
         }
     }
