@@ -75,6 +75,7 @@
             import.TabIndex = 3;
             import.Text = "インポート";
             import.UseVisualStyleBackColor = true;
+            import.Click += import_Click;
             // 
             // dataGridView1
             // 
