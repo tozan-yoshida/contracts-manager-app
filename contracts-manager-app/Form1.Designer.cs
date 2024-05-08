@@ -34,6 +34,7 @@
             import = new Button();
             dataGridView1 = new DataGridView();
             export = new Button();
+            searchError = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -54,6 +55,7 @@
             search.TabIndex = 1;
             search.Text = "検索";
             search.UseVisualStyleBackColor = true;
+            search.Click += search_Click;
             // 
             // register
             // 
@@ -78,10 +80,10 @@
             // 
             dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(12, 143);
+            dataGridView1.Location = new Point(12, 154);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 62;
-            dataGridView1.Size = new Size(1059, 579);
+            dataGridView1.Size = new Size(1059, 568);
             dataGridView1.TabIndex = 4;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
@@ -93,12 +95,24 @@
             export.TabIndex = 5;
             export.Text = "エクスポート";
             export.UseVisualStyleBackColor = true;
+            export.Click += export_Click;
+            // 
+            // searchError
+            // 
+            searchError.AutoSize = true;
+            searchError.ForeColor = Color.Crimson;
+            searchError.Location = new Point(704, 126);
+            searchError.Name = "searchError";
+            searchError.Size = new Size(22, 25);
+            searchError.TabIndex = 6;
+            searchError.Text = "  ";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1083, 734);
+            Controls.Add(searchError);
             Controls.Add(export);
             Controls.Add(dataGridView1);
             Controls.Add(import);
@@ -121,5 +135,6 @@
         private Button import;
         private DataGridView dataGridView1;
         private Button export;
+        private Label searchError;
     }
 }
