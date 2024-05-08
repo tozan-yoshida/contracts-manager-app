@@ -95,6 +95,7 @@
             export.TabIndex = 5;
             export.Text = "エクスポート";
             export.UseVisualStyleBackColor = true;
+            export.Click += export_Click;
             // 
             // searchError
             // 

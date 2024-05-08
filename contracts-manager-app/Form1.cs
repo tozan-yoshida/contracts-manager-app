@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices.Marshalling;
+using System.IO;
 
 namespace contracts_manager_app
 {
@@ -130,7 +131,7 @@ namespace contracts_manager_app
         }
 
         /// <summary>
-        /// 新規登録ボタンを押した時の処理
+        /// 新規登録ボタン押下時のイベント
         /// </summary>
         private void register_Click(object sender, EventArgs e)
         {
@@ -213,10 +214,8 @@ namespace contracts_manager_app
         }
 
         /// <summary>
-        /// 検索ボタンをクリックしたときのイベント
+        /// 検索ボタン押下時のイベント
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void search_Click(object sender, EventArgs e)
         {
             // 文字列が入力されている場合
@@ -229,6 +228,121 @@ namespace contracts_manager_app
                                                  "OR address LIKE'%" + searchBox.Text + "%' " +
                                                  "OR remark LIKE'%" + searchBox.Text + "%' ";
             }
+        }
+
+        /// <summary>
+        /// エクスポートボタン押下時のイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void export_Click(object sender, EventArgs e)
+        {
+            if(contacts.Rows.Count > 0)
+            {
+                // 日時取得
+                DateTime dt = DateTime.Now;
+
+                // csvファイルのパス、ファイル名は連絡先_[年月日時間分]
+                string csvPath = @"C:\Users\toru_yoshida\source\repos\contracts-manager-app\連絡先_"
+                                    + dt.ToString("yyMMddHHmm") + ".csv";
+
+
+                // CSVファイルに書き込むときに使うEncoding
+                System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
+
+                // 書き込むファイルを開く
+                StreamWriter sr = new StreamWriter(csvPath, false, enc);
+                
+                int colCount = contacts.Columns.Count;
+                int lastColIndex = colCount - 1;
+
+                // ヘッダを書き込む
+                for(int i = 0; i < colCount; i++)
+                {
+                    // ヘッダの取得
+                    string field = contacts.Columns[i].Caption;
+                    //"で囲む
+                    field = EncloseDoubleQuotesIfNeed(field);
+                    // フィールドを書き込む
+                    sr.Write(field);
+                    // カンマを書き込む
+                    if(lastColIndex > i)
+                    {
+                        sr.Write(',');
+                    }
+                    
+                }
+                // 改行する
+                sr.Write("\r\n");
+
+                // レコードを書き込む
+                foreach(DataRow row in contacts.Rows)
+                {
+                    for (int i = 0; i < colCount; i++)
+                    {
+                        // フィールドの取得
+                        string field = row[i].ToString();
+                        // "で囲む
+                        field = EncloseDoubleQuotesIfNeed(field);
+                        // フィールドを書き込む
+                        sr.Write(field);
+                        // カンマを書き込む
+                        if(lastColIndex > i)
+                        {
+                            sr.Write(',');
+                        }
+                    }
+                    // 改行する
+                    sr.Write("\r\n");
+                }
+                sr.Close();
+
+                MessageBox.Show("エクスポートしました");
+            }
+            else
+            {
+                MessageBox.Show("エクスポートするデータが存在しません");
+            }
+        }
+
+        /// <summary>
+        /// 文字列をダブルクォートで囲む
+        /// </summary>
+        private string EncloseDoubleQuotesIfNeed(string field)
+        {
+            if (NeedEncloseDoubleQuotes(field))
+            {
+                return EncloseDoubleQuotes(field);
+            }
+            return field;
+        }
+
+        /// <summary>
+        /// 文字列をダブルクォートで囲む
+        /// </summary>
+        private string EncloseDoubleQuotes(string field)
+        {
+            if(field.IndexOf('"') > -1)
+            {
+                //"を""とする
+                field = field.Replace("\"", "\"\"");
+            }
+            return "\"" + field + "\"";
+        }
+
+        /// <summary>
+        /// 文字列をダブルクォートで囲む必要があるか調べる
+        /// </summary>
+        private bool NeedEncloseDoubleQuotes(string field)
+        {
+            return field.IndexOf('"') > -1 ||
+                field.IndexOf(',') > -1 ||
+                field.IndexOf('\r') > -1 ||
+                field.IndexOf('\n') > -1 ||
+                field.StartsWith(" ") ||
+                field.StartsWith("\t") ||
+                field.EndsWith(" ") ||
+                field.EndsWith("\t");
         }
     }
 }
