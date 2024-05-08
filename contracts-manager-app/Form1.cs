@@ -87,7 +87,7 @@ namespace contracts_manager_app
         /// <summary>
         /// DataGridView‚Ì•\‚ğ(Ä)æ“¾‚·‚é
         /// </summary>
-        private void ScreenDisplay()
+        public void ScreenDisplay()
         {
             try
             {

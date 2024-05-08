@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.Sockets;
@@ -119,11 +121,43 @@ namespace contracts_manager_app
             // 新規登録、更新処理
             if (!error)            
             {
-                // 入力情報をdbにmerge into
+                try
+                {
+                    using(SqlConnection conn = new SqlConnection(connectionString))
+                    {
+                        using(SqlCommand cmd = conn.CreateCommand())
+                        {
+                            // 入力情報をdbにmerge intoするためのクエリ文
+                            cmd.CommandText =   "MERGE INTO contacts AS target " +
+                                                "USING " +
+                                                    "(VALUES " +
+                                                        "(" + f1.id + ",'" + nameBox.Text + "','" + telBox.Text + "','" + addressBox.Text + "','" + remarkBox.Text + "') " +
+                                                    ") AS source(id, name, tel, address, remark) " +
+                                                "ON target.id = source.id " +
+                                                "WHEN MATCHED THEN " +
+                                                    "UPDATE SET target.name = source.name, " +
+                                                    "target.tel = source.tel, " +
+                                                    "target.address = source.address, " +
+                                                    "target.remark = source.remark " +
+                                                "WHEN NOT MATCHED THEN " +
+                                                    "INSERT (name, tel, address, remark) " +
+                                                    "VALUES (source.name, source.tel, source.address, source.remark); ";
+                            // db接続
+                            conn.Open();
+                            // クエリ文実行
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
 
                 // dataGridViewを再表示
+                f1.ScreenDisplay();
 
-                // このページを閉じる
+                // このフォームを閉じる
                 this.Close();
             }
         }
