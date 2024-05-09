@@ -135,6 +135,10 @@ namespace contracts_manager_app
                 Debug.WriteLine("ｴﾗｰ" + ex.Message);
             }
 
+            // dataGridViewの初期表示でセルを選択させない
+            dataGridView1.CurrentCell = null;
+            dataGridView1.ClearSelection();
+
         }
 
         /// <summary>
@@ -184,7 +188,7 @@ namespace contracts_manager_app
             // "削除"ボタンを押したときの処理
             else if (dgv.Columns[e.ColumnIndex].Name == "削除")
             {
-                DialogResult result = MessageBox.Show("連絡先を削除しますか？", "質問",
+                DialogResult result = MessageBox.Show("連絡先を削除しますか？", "確認",
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
 
                 // OKを押したときの処理
@@ -254,6 +258,8 @@ namespace contracts_manager_app
                 string csvPath = @"C:\Users\toru_yoshida\source\repos\contracts-manager-app\連絡先_"
                                     + dt.ToString("yyMMddHHmm") + ".csv";
 
+                // csvファイルのパスをフォルダを指定して取得
+
 
                 // CSVファイルに書き込むときに使うEncoding
                 System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
@@ -312,6 +318,7 @@ namespace contracts_manager_app
                 MessageBox.Show("エクスポートするデータが存在しません");
             }
         }
+
 
         /// <summary>
         /// 文字列をダブルクォートで囲む
@@ -420,9 +427,10 @@ namespace contracts_manager_app
             // ダイアログを表示する
             if (ofd.ShowDialog() == DialogResult.OK)
             {
+                return ofd.FileName;
             }
 
-            return ofd.FileName;
+            return　"";
         }
 
         /// <summary>
