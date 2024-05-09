@@ -14,20 +14,20 @@ using System.Windows.Forms;
 namespace contracts_manager_app
 {
 
-    public partial class Form2 : Form
+    public partial class RegistOrUpdate : Form
     {
 
         
         public bool update { get; set; } = false;
         private bool error { get; set; } = false;
-        private Form1 f1;
+        private InquiryScreen inquiryScreen;
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
 
 
-        public Form2(Form1 f1)
+        public RegistOrUpdate(InquiryScreen inquiryScreen)
         {
-            this.f1 = f1;
+            this.inquiryScreen = inquiryScreen;
             InitializeComponent();
         }
 
@@ -50,7 +50,7 @@ namespace contracts_manager_app
             {
                 List<string> idList = new List<string>();
                 // 名前が同一の行を連絡先テーブルから抽出、リスト化
-                foreach (DataRow dr in f1.contacts.Rows)
+                foreach (DataRow dr in inquiryScreen.contacts.Rows)
                 {
                     if (dr["name"].Equals(nameBox.Text))
                     {
@@ -65,7 +65,7 @@ namespace contracts_manager_app
                     foreach (var item in idList)
                     {
                         // している場合重複エラー
-                        if(!item.Equals(f1.id))
+                        if(!item.Equals(inquiryScreen.id))
                         {
                             error = true;
                             nameError.Text = "この名前は既に登録されています";
@@ -132,7 +132,7 @@ namespace contracts_manager_app
                             cmd.CommandText =   "MERGE INTO contacts AS target " +
                                                 "USING " +
                                                     "(VALUES " +
-                                                        "(" + f1.id + ",'" + nameBox.Text + "','" + telBox.Text + "','" + addressBox.Text + "','" + remarkBox.Text + "') " +
+                                                        "(" + inquiryScreen.id + ",'" + nameBox.Text + "','" + telBox.Text + "','" + addressBox.Text + "','" + remarkBox.Text + "') " +
                                                     ") AS source(id, name, tel, address, remark) " +
                                                 "ON target.id = source.id " +
                                                 "WHEN MATCHED THEN " +
@@ -156,7 +156,7 @@ namespace contracts_manager_app
                 }
 
                 // dataGridViewを再表示
-                f1.ScreenDisplay();
+                inquiryScreen.ScreenDisplay();
 
                 // このフォームを閉じる
                 this.Close();
@@ -176,12 +176,21 @@ namespace contracts_manager_app
         /// <param name="tel"></param>
         /// <param name="address"></param>
         /// <param name="remark"></param>
-        public void TextBoxRegester(string name, string tel, string address, string remark)
+        public void TextBoxRegister(string name, string tel, string address, string remark)
         {
             nameBox.Text = name;
             telBox.Text = tel;
             addressBox.Text = address;
             remarkBox.Text = remark;
+        }
+
+        public class Contact 
+        { 
+            public string name { get; set; }
+            public string tel { get; set; }
+            public string address { get; set; }
+            public string remark { get; set; }
+
         }
 
         /// <summary>

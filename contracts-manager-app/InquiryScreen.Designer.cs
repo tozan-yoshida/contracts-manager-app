@@ -1,6 +1,6 @@
 ﻿namespace contracts_manager_app
 {
-    partial class Form1
+    partial class InquiryScreen
     {
         /// <summary>
         ///  Required designer variable.
@@ -43,7 +43,7 @@
             // searchBox
             // 
             searchBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            searchBox.Location = new Point(416, 80);
+            searchBox.Location = new Point(490, 80);
             searchBox.Name = "searchBox";
             searchBox.Size = new Size(304, 31);
             searchBox.TabIndex = 0;
@@ -51,7 +51,7 @@
             // search
             // 
             search.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            search.Location = new Point(726, 80);
+            search.Location = new Point(800, 80);
             search.Name = "search";
             search.Size = new Size(57, 31);
             search.TabIndex = 1;
@@ -61,12 +61,13 @@
             // 
             // register
             // 
+            register.BackColor = SystemColors.GradientActiveCaption;
             register.Location = new Point(12, 65);
             register.Name = "register";
             register.Size = new Size(104, 60);
             register.TabIndex = 2;
             register.Text = "新規追加";
-            register.UseVisualStyleBackColor = true;
+            register.UseVisualStyleBackColor = false;
             register.Click += register_Click;
             // 
             // import
@@ -91,7 +92,7 @@
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.RowHeadersWidth = 62;
-            dataGridView1.Size = new Size(771, 317);
+            dataGridView1.Size = new Size(845, 317);
             dataGridView1.TabIndex = 4;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
@@ -118,7 +119,7 @@
             // showAllContacts
             // 
             showAllContacts.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            showAllContacts.Location = new Point(630, 117);
+            showAllContacts.Location = new Point(704, 117);
             showAllContacts.Name = "showAllContacts";
             showAllContacts.Size = new Size(153, 31);
             showAllContacts.TabIndex = 7;
@@ -136,11 +137,11 @@
             window1.TabIndex = 8;
             window1.Text = "照会画面";
             // 
-            // Form1
+            // InquiryScreen
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(795, 483);
+            ClientSize = new Size(869, 483);
             Controls.Add(window1);
             Controls.Add(showAllContacts);
             Controls.Add(searchError);
@@ -150,7 +151,7 @@
             Controls.Add(register);
             Controls.Add(search);
             Controls.Add(searchBox);
-            Name = "Form1";
+            Name = "InquiryScreen";
             Text = "連絡先管理アプリ";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();

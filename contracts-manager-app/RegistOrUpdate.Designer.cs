@@ -1,6 +1,6 @@
 ﻿namespace contracts_manager_app
 {
-    partial class Form2
+    partial class RegistOrUpdate
     {
         /// <summary>
         /// Required designer variable.

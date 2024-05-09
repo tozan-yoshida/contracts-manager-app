@@ -7,7 +7,7 @@ using System.IO;
 
 namespace contracts_manager_app
 {
-    public partial class Form1 : Form
+    public partial class InquiryScreen : Form
     {
         public DataTable contacts { get; set; }
 
@@ -16,7 +16,7 @@ namespace contracts_manager_app
         // データベースとの接続文字列作成
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
-        private Form2 f2;
+        private RegistOrUpdate registOrUpdateScreen;
 
         public string id { get; set; }
         public string name { get; set; }
@@ -24,7 +24,7 @@ namespace contracts_manager_app
         public string address { get; set; }
         public string remark { get; set; }
 
-        public Form1()
+        public InquiryScreen()
         {
             InitializeComponent();
 
@@ -62,7 +62,7 @@ namespace contracts_manager_app
 
             // 初期状態は新規登録
 
-            f2 = new Form2(this);
+            registOrUpdateScreen = new RegistOrUpdate(this);
 
             id = "";
             name = "";
@@ -139,10 +139,10 @@ namespace contracts_manager_app
         private void register_Click(object sender, EventArgs e)
         {
             id = "0";
-            f2.update = false;
+            registOrUpdateScreen.update = false;
             // ボタンの表示を"登録"に変更
-            f2.LabelChanger("登録", "新規追加画面");
-            f2.ShowDialogPlus();
+            registOrUpdateScreen.LabelChanger("登録", "新規追加画面");
+            registOrUpdateScreen.ShowDialogPlus();
         }
 
 
@@ -158,23 +158,23 @@ namespace contracts_manager_app
             if (dgv.Columns[e.ColumnIndex].Name == "編集")
             {
                 // 編集、更新画面のボタンの表記を"更新"に変更
-                f2.LabelChanger("更新", "編集画面");
-                f2.update = true;
+                registOrUpdateScreen.LabelChanger("更新", "編集画面");
+                registOrUpdateScreen.update = true;
                 // 押された"編集"ボタンの行の情報取得、格納
-                id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
-                name = dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString();
-                tel = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
-                address = dataGridView1.Rows[e.RowIndex].Cells[3].Value.ToString();
-                if (dataGridView1.Rows[e.RowIndex].Cells[4].Value != null) remark = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
+                id = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
+                name = dataGridView1.Rows[e.RowIndex].Cells[3].Value.ToString();
+                tel = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
+                address = dataGridView1.Rows[e.RowIndex].Cells[5].Value.ToString();
+                if (dataGridView1.Rows[e.RowIndex].Cells[6].Value != null) remark = dataGridView1.Rows[e.RowIndex].Cells[6].Value.ToString();
 
                 // 正しく取得できているかのテスト
                 // MessageBox.Show( id + name + tel + address + remark);
 
                 // 遷移先の画面のテキストボックスに自動的に入力
-                f2.TextBoxRegester(name, tel, address, remark);
+                registOrUpdateScreen.TextBoxRegister(name, tel, address, remark);
 
                 // 画面遷移
-                f2.ShowDialogPlus();
+                registOrUpdateScreen.ShowDialogPlus();
             }
 
             // "削除"ボタンを押したときの処理
@@ -191,7 +191,7 @@ namespace contracts_manager_app
                         using (SqlConnection conn = new SqlConnection(connectionString))
                         {
                             // 削除したい行のidを取得
-                            id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
+                            id = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
                             // クエリ文作成
                             string cmdtest = "DELETE FROM contacts WHERE id = " + id;
 
@@ -442,6 +442,7 @@ namespace contracts_manager_app
                                         "INSERT(id, name, tel, address, remark) " +
                                         "VALUES(source.id, source.name, source.tel, source.address, source.remark); " +
                                   "SET IDENTITY_INSERT contacts OFF";
+                                       
 
                     // MessageBox.Show(cmdtxt);
                     using (SqlCommand cmd = conn.CreateCommand())
