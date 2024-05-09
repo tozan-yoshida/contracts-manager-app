@@ -102,6 +102,9 @@ namespace contracts_manager_app
                     // 表示の初期化
                     contacts.Clear();
 
+                    // 行フィルターをオフにする
+                    contacts.DefaultView.RowFilter = null;
+
                     // テーブルの全要素取得コマンドの生成
                     var cmd = connection.CreateCommand();
                     cmd.CommandText = "SELECT * FROM contacts";
@@ -137,8 +140,9 @@ namespace contracts_manager_app
         {
             id = "0";
             f2.update = false;
+            // ボタンの表示を"登録"に変更
             f2.LabelChanger("登録");
-            f2.ShowDialog();
+            f2.ShowDialogPlus();
         }
 
 
@@ -170,7 +174,7 @@ namespace contracts_manager_app
                 f2.TextBoxRegester(name, tel, address, remark);
 
                 // 画面遷移
-                f2.ShowDialog();
+                f2.ShowDialogPlus();
             }
 
             // "削除"ボタンを押したときの処理
@@ -297,7 +301,7 @@ namespace contracts_manager_app
                 }
                 sr.Close();
 
-                MessageBox.Show("エクスポートしました");
+                MessageBox.Show(csvPath+"にエクスポートしました");
             }
             else
             {
@@ -360,7 +364,7 @@ namespace contracts_manager_app
                 // 1行目はヘッダーになっているため読み込んではいけない
                 bool notFirst = false;
                 // 末尾まで繰り返す
-                while(!sr.EndOfStream)
+                while (!sr.EndOfStream)
                 {
                     // CSVファイルの1行を読み込む
                     string line = sr.ReadLine();
@@ -386,6 +390,10 @@ namespace contracts_manager_app
 
         }
 
+        /// <summary>
+        /// 検索用のダイアログ表示
+        /// </summary>
+        /// <returns>指定したファイルのパス</returns>
         private string DialogOpen()
         {
             // OpenFileDialogクラスのインスタンスを作成
@@ -444,10 +452,18 @@ namespace contracts_manager_app
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// 全連絡先表示ボタン押下時のイベント
+        /// </summary>
+        private void showAllContacts_Click(object sender, EventArgs e)
+        {
+            ScreenDisplay();
         }
     }
 }
