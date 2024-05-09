@@ -65,7 +65,7 @@ namespace contracts_manager_app
                     foreach (var item in idList)
                     {
                         // している場合重複エラー
-                        if(!item.Equals(inquiryScreen.id))
+                        if(!item.Equals(inquiryScreen.contact1.id))
                         {
                             error = true;
                             nameError.Text = "この名前は既に登録されています";
@@ -132,7 +132,7 @@ namespace contracts_manager_app
                             cmd.CommandText =   "MERGE INTO contacts AS target " +
                                                 "USING " +
                                                     "(VALUES " +
-                                                        "(" + inquiryScreen.id + ",'" + nameBox.Text + "','" + telBox.Text + "','" + addressBox.Text + "','" + remarkBox.Text + "') " +
+                                                        "(" + inquiryScreen.contact1.id + ",'" + nameBox.Text + "','" + telBox.Text + "','" + addressBox.Text + "','" + remarkBox.Text + "') " +
                                                     ") AS source(id, name, tel, address, remark) " +
                                                 "ON target.id = source.id " +
                                                 "WHEN MATCHED THEN " +
@@ -165,7 +165,7 @@ namespace contracts_manager_app
 
         public void LabelChanger(string buttonName, string formName)
         {
-            registOrUpdate.Text = buttonName;
+            enter.Text = buttonName;
             formInfo.Text = formName;
         }
 
@@ -176,22 +176,14 @@ namespace contracts_manager_app
         /// <param name="tel"></param>
         /// <param name="address"></param>
         /// <param name="remark"></param>
-        public void TextBoxRegister(string name, string tel, string address, string remark)
+        public void TextBoxRegister(Contact contact)
         {
-            nameBox.Text = name;
-            telBox.Text = tel;
-            addressBox.Text = address;
-            remarkBox.Text = remark;
+            nameBox.Text = contact.name;
+            telBox.Text = contact.tel;
+            addressBox.Text = contact.address;
+            remarkBox.Text = contact.remark;
         }
 
-        public class Contact 
-        { 
-            public string name { get; set; }
-            public string tel { get; set; }
-            public string address { get; set; }
-            public string remark { get; set; }
-
-        }
 
         /// <summary>
         /// 電話番号のテキストボックスの入力制限設定

@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices.Marshalling;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 
 namespace contracts_manager_app
 {
@@ -11,18 +13,12 @@ namespace contracts_manager_app
     {
         public DataTable contacts { get; set; }
 
-        public DataTable searchedDT { get; set; }
-
         // データベースとの接続文字列作成
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
         private RegistOrUpdate registOrUpdateScreen;
 
-        public string id { get; set; }
-        public string name { get; set; }
-        public string tel { get; set; }
-        public string address { get; set; }
-        public string remark { get; set; }
+        public Contact contact1 { get; set; }
 
         public InquiryScreen()
         {
@@ -48,27 +44,35 @@ namespace contracts_manager_app
             updateButton.Text = "編集";
             deleteButton.Text = "削除";
 
+            // ボタンの背景色変更
+            updateButton.DefaultCellStyle.BackColor = Color.LightGreen;
+            deleteButton.DefaultCellStyle.BackColor = Color.Coral;
+
             // DataGridViewに追加する
+            updateButton.FlatStyle = FlatStyle.Flat;
+            deleteButton.FlatStyle = FlatStyle.Flat;
             dataGridView1.Columns.Add(updateButton);
             dataGridView1.Columns.Add(deleteButton);
-
+            
             contacts.Columns.Add("id", typeof(int));
             contacts.Columns.Add("name", typeof(string));
             contacts.Columns.Add("tel", typeof(string));
             contacts.Columns.Add("address", typeof(string));
             contacts.Columns.Add("remark", typeof(string));
 
-            searchedDT = new DataTable();
+            dataGridView1.Columns[0].FillWeight = 1.0f;
+            dataGridView1.Columns[1].FillWeight = 1.0f;
+            dataGridView1.Columns[2].FillWeight = 1.0f;
+            dataGridView1.Columns[3].FillWeight = 4.0f;
+            dataGridView1.Columns[4].FillWeight = 2.6f;
+            dataGridView1.Columns[5].FillWeight = 5.0f;
+            dataGridView1.Columns[6].FillWeight = 7.5f;
 
             // 初期状態は新規登録
 
             registOrUpdateScreen = new RegistOrUpdate(this);
 
-            id = "";
-            name = "";
-            tel = "";
-            address = "";
-            remark = "";
+            contact1 = new Contact("", "", "", "", "");
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -138,7 +142,7 @@ namespace contracts_manager_app
         /// </summary>
         private void register_Click(object sender, EventArgs e)
         {
-            id = "0";
+            contact1.id = "0";
             registOrUpdateScreen.update = false;
             // ボタンの表示を"登録"に変更
             registOrUpdateScreen.LabelChanger("登録", "新規追加画面");
@@ -161,17 +165,17 @@ namespace contracts_manager_app
                 registOrUpdateScreen.LabelChanger("更新", "編集画面");
                 registOrUpdateScreen.update = true;
                 // 押された"編集"ボタンの行の情報取得、格納
-                id = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
-                name = dataGridView1.Rows[e.RowIndex].Cells[3].Value.ToString();
-                tel = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
-                address = dataGridView1.Rows[e.RowIndex].Cells[5].Value.ToString();
-                if (dataGridView1.Rows[e.RowIndex].Cells[6].Value != null) remark = dataGridView1.Rows[e.RowIndex].Cells[6].Value.ToString();
+                contact1.id = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
+                contact1.name = dataGridView1.Rows[e.RowIndex].Cells[3].Value.ToString();
+                contact1.tel = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
+                contact1.address = dataGridView1.Rows[e.RowIndex].Cells[5].Value.ToString();
+                if (dataGridView1.Rows[e.RowIndex].Cells[6].Value != null) contact1.remark = dataGridView1.Rows[e.RowIndex].Cells[6].Value.ToString();
 
                 // 正しく取得できているかのテスト
                 // MessageBox.Show( id + name + tel + address + remark);
 
                 // 遷移先の画面のテキストボックスに自動的に入力
-                registOrUpdateScreen.TextBoxRegister(name, tel, address, remark);
+                registOrUpdateScreen.TextBoxRegister(contact1);
 
                 // 画面遷移
                 registOrUpdateScreen.ShowDialogPlus();
@@ -191,9 +195,9 @@ namespace contracts_manager_app
                         using (SqlConnection conn = new SqlConnection(connectionString))
                         {
                             // 削除したい行のidを取得
-                            id = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
+                            contact1.id = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
                             // クエリ文作成
-                            string cmdtest = "DELETE FROM contacts WHERE id = " + id;
+                            string cmdtest = "DELETE FROM contacts WHERE id = " + contact1.id;
 
                             using (var cmd = new SqlCommand(cmdtest, conn))
                             {
@@ -356,38 +360,43 @@ namespace contracts_manager_app
         {
             // CSVファイルを読み取る時に使うEncoding
             System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
-
-            // 読み込みたいCSVファイルをダイアログより選択して開く
-            using (StreamReader sr = new StreamReader(DialogOpen(), enc, false))
+            try
             {
-                // 1行目ではないかどうか
-                // 1行目はヘッダーになっているため読み込んではいけない
-                bool notFirst = false;
-                // 末尾まで繰り返す
-                while (!sr.EndOfStream)
+                // 読み込みたいCSVファイルをダイアログより選択して開く
+                using (StreamReader sr = new StreamReader(DialogOpen(), enc, false))
                 {
-                    // CSVファイルの1行を読み込む
-                    string line = sr.ReadLine();
-
-                    // 2行目以降の場合
-                    if (notFirst)
+                    // 1行目ではないかどうか
+                    // 1行目はヘッダーになっているため読み込んではいけない
+                    bool notFirst = false;
+                    // 末尾まで繰り返す
+                    while (!sr.EndOfStream)
                     {
-                        // 読み込んだ1行をカンマ事に分けて配列に格納する
-                        string[] values = line.Split(',');
+                        // CSVファイルの1行を読み込む
+                        string line = sr.ReadLine();
 
-                        // 配列からリストに格納する
-                        List<string> lists = new List<string>();
-                        lists.AddRange(values);
+                        // 2行目以降の場合
+                        if (notFirst)
+                        {
+                            // 読み込んだ1行をカンマ事に分けて配列に格納する
+                            string[] values = line.Split(',');
 
-                        // リストからDBにインポート
-                        importDB(lists);
+                            // 配列からリストに格納する
+                            List<string> lists = new List<string>();
+                            lists.AddRange(values);
+
+                            // リストからDBにインポート
+                            importDB(lists);
+                        }
+                        notFirst = true;
                     }
-                    notFirst = true;
+                    // 画面の更新
+                    ScreenDisplay();
                 }
-                // 画面の更新
-                ScreenDisplay();
             }
-
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
         }
 
         /// <summary>
