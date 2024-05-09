@@ -35,7 +35,7 @@
             dataGridView1 = new DataGridView();
             export = new Button();
             searchError = new Label();
-            re = new Button();
+            showAllContacts = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -109,22 +109,23 @@
             searchError.TabIndex = 6;
             searchError.Text = "  ";
             // 
-            // re
+            // showAllContacts
             // 
-            re.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            re.Location = new Point(1014, 117);
-            re.Name = "re";
-            re.Size = new Size(57, 31);
-            re.TabIndex = 7;
-            re.Text = "検索";
-            re.UseVisualStyleBackColor = true;
+            showAllContacts.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            showAllContacts.Location = new Point(918, 117);
+            showAllContacts.Name = "showAllContacts";
+            showAllContacts.Size = new Size(153, 31);
+            showAllContacts.TabIndex = 7;
+            showAllContacts.Text = "全連絡先表示";
+            showAllContacts.UseVisualStyleBackColor = true;
+            showAllContacts.Click += showAllContacts_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1083, 734);
-            Controls.Add(re);
+            Controls.Add(showAllContacts);
             Controls.Add(searchError);
             Controls.Add(export);
             Controls.Add(dataGridView1);
@@ -149,6 +150,6 @@
         private DataGridView dataGridView1;
         private Button export;
         private Label searchError;
-        private Button re;
+        private Button showAllContacts;
     }
 }
