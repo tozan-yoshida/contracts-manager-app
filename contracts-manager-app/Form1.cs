@@ -30,6 +30,28 @@ namespace contracts_manager_app
 
             // DataTableの初期化
             contacts = new DataTable();
+
+            // DataGridViewの初期化
+            dataGridView1.DataSource = contacts;
+
+            // DataGridViewButtonColumnの作成
+            DataGridViewButtonColumn updateButton = new DataGridViewButtonColumn();
+            DataGridViewButtonColumn deleteButton = new DataGridViewButtonColumn();
+
+            // 列の名前を設定
+            updateButton.Name = "編集";
+            deleteButton.Name = "削除";
+
+            // すべてのボタンに"編集"、"削除"と表示する
+            updateButton.UseColumnTextForButtonValue = true;
+            deleteButton.UseColumnTextForButtonValue = true;
+            updateButton.Text = "編集";
+            deleteButton.Text = "削除";
+
+            // DataGridViewに追加する
+            dataGridView1.Columns.Add(updateButton);
+            dataGridView1.Columns.Add(deleteButton);
+
             contacts.Columns.Add("id", typeof(int));
             contacts.Columns.Add("name", typeof(string));
             contacts.Columns.Add("tel", typeof(string));
@@ -51,40 +73,18 @@ namespace contracts_manager_app
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // DataGridViewの初期化
-            // カラム数を指定
-            dataGridView1.DataSource = contacts;
-
-            // DataGridViewButtonColumnの作成
-            DataGridViewButtonColumn updateButton = new DataGridViewButtonColumn();
-            DataGridViewButtonColumn deleteButton = new DataGridViewButtonColumn();
-
-            // 列の名前を設定
-            updateButton.Name = "編集";
-            deleteButton.Name = "削除";
-
-            // すべてのボタンに"編集"、"削除"と表示する
-            updateButton.UseColumnTextForButtonValue = true;
-            deleteButton.UseColumnTextForButtonValue = true;
-            updateButton.Text = "編集";
-            deleteButton.Text = "削除";
-
-            // DataGridViewに追加する
-            dataGridView1.Columns.Add(updateButton);
-            dataGridView1.Columns.Add(deleteButton);
 
             // カラム名を指定
-            dataGridView1.Columns[1].HeaderText = "名前";
-            dataGridView1.Columns[2].HeaderText = "電話番号";
-            dataGridView1.Columns[3].HeaderText = "メールアドレス";
-            dataGridView1.Columns[4].HeaderText = "備考";
+            dataGridView1.Columns[3].HeaderText = "名前";
+            dataGridView1.Columns[4].HeaderText = "電話番号";
+            dataGridView1.Columns[5].HeaderText = "メールアドレス";
+            dataGridView1.Columns[6].HeaderText = "備考";
 
             // はじめの列を非表示にする
-            dataGridView1.Columns[0].Visible = false;
+            dataGridView1.Columns[2].Visible = false;
 
-
-            // データの追加テスト
-            contacts.Rows.Add(1, "田中", "123456789", "nanikasira", "ビコー");
+            dataGridView1.Columns[0].HeaderText = "";
+            dataGridView1.Columns[1].HeaderText = "";
 
             ScreenDisplay();
 
@@ -141,7 +141,7 @@ namespace contracts_manager_app
             id = "0";
             f2.update = false;
             // ボタンの表示を"登録"に変更
-            f2.LabelChanger("登録");
+            f2.LabelChanger("登録", "新規追加画面");
             f2.ShowDialogPlus();
         }
 
@@ -158,7 +158,7 @@ namespace contracts_manager_app
             if (dgv.Columns[e.ColumnIndex].Name == "編集")
             {
                 // 編集、更新画面のボタンの表記を"更新"に変更
-                f2.LabelChanger("更新");
+                f2.LabelChanger("更新", "編集画面");
                 f2.update = true;
                 // 押された"編集"ボタンの行の情報取得、格納
                 id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
@@ -301,7 +301,7 @@ namespace contracts_manager_app
                 }
                 sr.Close();
 
-                MessageBox.Show(csvPath+"にエクスポートしました");
+                MessageBox.Show(csvPath + "にエクスポートしました");
             }
             else
             {

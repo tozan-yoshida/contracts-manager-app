@@ -41,6 +41,7 @@
             telError = new Label();
             remarkError = new Label();
             addressError = new Label();
+            formInfo = new Label();
             SuspendLayout();
             // 
             // registOrUpdate
@@ -160,11 +161,22 @@
             addressError.TabIndex = 15;
             addressError.Text = "  ";
             // 
+            // formInfo
+            // 
+            formInfo.AutoSize = true;
+            formInfo.Font = new Font("Yu Gothic UI", 13F);
+            formInfo.Location = new Point(12, 9);
+            formInfo.Name = "formInfo";
+            formInfo.Size = new Size(83, 36);
+            formInfo.TabIndex = 16;
+            formInfo.Text = "label5";
+            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(856, 531);
+            Controls.Add(formInfo);
             Controls.Add(addressError);
             Controls.Add(remarkError);
             Controls.Add(telError);
@@ -179,7 +191,7 @@
             Controls.Add(nameBox);
             Controls.Add(registOrUpdate);
             Name = "Form2";
-            Text = "Form2";
+            Text = "連絡先画面アプリ";
             ResumeLayout(false);
             PerformLayout();
         }
@@ -199,5 +211,6 @@
         private Label telError;
         private Label remarkError;
         private Label addressError;
+        private Label formInfo;
     }
 }

@@ -163,9 +163,10 @@ namespace contracts_manager_app
             }
         }
 
-        public void LabelChanger(string buttonName)
+        public void LabelChanger(string buttonName, string formName)
         {
             registOrUpdate.Text = buttonName;
+            formInfo.Text = formName;
         }
 
         /// <summary>
