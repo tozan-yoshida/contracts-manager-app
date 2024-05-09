@@ -19,6 +19,7 @@ namespace contracts_manager_app
 
         
         public bool update { get; set; } = false;
+        private bool error { get; set; } = false;
         private Form1 f1;
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
@@ -34,7 +35,7 @@ namespace contracts_manager_app
         private void registOrUpdate_Click(object sender, EventArgs e)
         {
             // 諸々初期化
-            bool error = false;
+            error = false;
             nameError.Text = string.Empty;
             telError.Text = string.Empty;
             addressError.Text = string.Empty;
@@ -192,6 +193,29 @@ namespace contracts_manager_app
 
             // 数値0～9以外が押されたときはイベントをキャンセルする
             if(e.KeyChar < '0' || '9' < e.KeyChar) e.Handled  = true;
+        }
+
+        /// <summary>
+        /// 登録・編集画面を初期化して表示
+        /// </summary>
+        public void ShowDialogPlus()
+        {
+            // 諸々初期化
+            error = false;
+            nameError.Text = string.Empty;
+            telError.Text = string.Empty;
+            addressError.Text = string.Empty;
+            remarkError.Text = string.Empty;
+
+            // 新規登録の場合、テキストボックスも初期化
+            if (!update)
+            {
+                nameBox.Text = string.Empty;
+                telBox.Text = string.Empty;
+                addressBox.Text = string.Empty;
+                remarkBox.Text = string.Empty;
+            }
+            ShowDialog();
         }
     }
 }
