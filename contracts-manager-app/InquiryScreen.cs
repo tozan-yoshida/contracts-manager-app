@@ -20,6 +20,15 @@ namespace contracts_manager_app
 
         public Contact contact1 { get; set; }
 
+        // それぞれの情報が何列目にあるか
+        private int updateIndex;    // 編集ボタン
+        private int deleteIndex;    // 削除ボタン
+        private int idIndex;        // id
+        private int nameIndex;      // 名前
+        private int telIndex;       // 電話番号
+        private int addressIndex;   // メールアドレス
+        private int remarkIndex;    // 備考
+
         public InquiryScreen()
         {
             InitializeComponent();
@@ -45,31 +54,39 @@ namespace contracts_manager_app
             deleteButton.Text = "削除";
 
             // ボタンの背景色変更
+            updateButton.FlatStyle = FlatStyle.Flat;
+            deleteButton.FlatStyle = FlatStyle.Flat;
             updateButton.DefaultCellStyle.BackColor = Color.LightGreen;
             deleteButton.DefaultCellStyle.BackColor = Color.Coral;
 
             // DataGridViewに追加する
-            updateButton.FlatStyle = FlatStyle.Flat;
-            deleteButton.FlatStyle = FlatStyle.Flat;
             dataGridView1.Columns.Add(updateButton);
-            dataGridView1.Columns.Add(deleteButton);
-            
+            dataGridView1.Columns.Add(deleteButton);            
             contacts.Columns.Add("id", typeof(int));
             contacts.Columns.Add("name", typeof(string));
             contacts.Columns.Add("tel", typeof(string));
             contacts.Columns.Add("address", typeof(string));
             contacts.Columns.Add("remark", typeof(string));
 
-            dataGridView1.Columns[0].FillWeight = 1.0f;
-            dataGridView1.Columns[1].FillWeight = 1.0f;
-            dataGridView1.Columns[2].FillWeight = 1.0f;
-            dataGridView1.Columns[3].FillWeight = 4.0f;
-            dataGridView1.Columns[4].FillWeight = 2.6f;
-            dataGridView1.Columns[5].FillWeight = 5.0f;
-            dataGridView1.Columns[6].FillWeight = 7.5f;
+            // 情報がそれぞれ dataGridView の何列目にあるか
+            updateIndex = dataGridView1.Columns["編集"].Index;
+            deleteIndex = dataGridView1.Columns["削除"].Index;
+            idIndex = dataGridView1.Columns["id"].Index;
+            nameIndex = dataGridView1.Columns["name"].Index;
+            telIndex = dataGridView1.Columns["tel"].Index;
+            addressIndex = dataGridView1.Columns["address"].Index;
+            remarkIndex = dataGridView1.Columns["remark"].Index;
 
-            // 初期状態は新規登録
+            // dataGridViewのレイアウト用
+            dataGridView1.Columns[updateIndex].FillWeight = 1.0f;
+            dataGridView1.Columns[deleteIndex].FillWeight = 1.0f;
+            dataGridView1.Columns[idIndex].FillWeight = 1.0f;
+            dataGridView1.Columns[nameIndex].FillWeight = 4.0f;
+            dataGridView1.Columns[telIndex].FillWeight = 2.6f;
+            dataGridView1.Columns[addressIndex].FillWeight = 5.0f;
+            dataGridView1.Columns[remarkIndex].FillWeight = 7.5f;
 
+            // 登録・編集画面のインスタンス作成
             registOrUpdateScreen = new RegistOrUpdate(this);
 
             contact1 = new Contact("", "", "", "", "");
@@ -165,64 +182,97 @@ namespace contracts_manager_app
             // "編集"ボタンを押したときの処理
             if (dgv.Columns[e.ColumnIndex].Name == "編集")
             {
-                // 編集、更新画面のボタンの表記を"更新"に変更
-                registOrUpdateScreen.LabelChanger("更新", "編集画面");
-                registOrUpdateScreen.update = true;
-                // 押された"編集"ボタンの行の情報取得、格納
-                contact1.id = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
-                contact1.name = dataGridView1.Rows[e.RowIndex].Cells[3].Value.ToString();
-                contact1.tel = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
-                contact1.address = dataGridView1.Rows[e.RowIndex].Cells[5].Value.ToString();
-                if (dataGridView1.Rows[e.RowIndex].Cells[6].Value != null) contact1.remark = dataGridView1.Rows[e.RowIndex].Cells[6].Value.ToString();
-
-                // 正しく取得できているかのテスト
-                // MessageBox.Show( id + name + tel + address + remark);
-
-                // 遷移先の画面のテキストボックスに自動的に入力
-                registOrUpdateScreen.TextBoxRegister(contact1);
-
-                // 画面遷移
-                registOrUpdateScreen.ShowDialogPlus();
+                EditClick(e);
             }
 
             // "削除"ボタンを押したときの処理
             else if (dgv.Columns[e.ColumnIndex].Name == "削除")
             {
-                DialogResult result = MessageBox.Show("連絡先を削除しますか？", "確認",
-                    MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
+                DeleteClick(e);                
+            }
+        }
 
-                // OKを押したときの処理
-                if (result == DialogResult.OK)
+        /// <summary>
+        /// 編集ボタン押下時のイベントの処理内容
+        /// </summary>
+        private void EditClick(DataGridViewCellEventArgs e)
+        {
+            // 編集、更新画面のボタンの表記を"更新"に変更
+            registOrUpdateScreen.LabelChanger("更新", "編集画面");
+            registOrUpdateScreen.update = true;
+            // 押された"編集"ボタンの行の情報取得、格納
+            RowInfoStore(e);
+
+            // 遷移先の画面のテキストボックスに自動的に入力
+            registOrUpdateScreen.TextBoxRegister(contact1);
+
+            // 画面遷移
+            registOrUpdateScreen.ShowDialogPlus();
+        }
+
+        /// <summary>
+        /// 押された行の情報取得、格納の処理内容
+        /// </summary>
+        private void RowInfoStore(DataGridViewCellEventArgs e)
+        {
+
+            // 押された行の情報取得、格納
+            contact1.id = dataGridView1.Rows[e.RowIndex].Cells[idIndex].Value.ToString();
+            contact1.name = dataGridView1.Rows[e.RowIndex].Cells[nameIndex].Value.ToString();
+            contact1.tel = dataGridView1.Rows[e.RowIndex].Cells[telIndex].Value.ToString();
+            contact1.address = dataGridView1.Rows[e.RowIndex].Cells[addressIndex].Value.ToString();
+            // 備考は何も入力されていない場合があるためif文で判断
+            if (dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value != null) 
+                contact1.remark = dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value.ToString();
+        }
+
+        /// <summary>
+        /// 削除ボタン押下時のイベントの処理内容
+        /// </summary>
+        /// <param name="e"></param>
+        private void DeleteClick(DataGridViewCellEventArgs e)
+        {
+            // 削除するかの確認メッセージボックスを表示
+            DialogResult result = MessageBox.Show("連絡先を削除しますか？", "確認",
+                   MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
+
+            // OKを押したときの処理
+            if (result == DialogResult.OK)
+            {
+               PushDeleteOk(e);
+            }
+        }
+
+
+        /// <summary>
+        /// 削除許可を出したときの処理
+        /// </summary>
+        private void PushDeleteOk(DataGridViewCellEventArgs e)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    try
-                    {
-                        using (SqlConnection conn = new SqlConnection(connectionString))
-                        {
-                            // 削除したい行のidを取得
-                            contact1.id = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
-                            // クエリ文作成
-                            string cmdtest = "DELETE FROM contacts WHERE id = " + contact1.id;
+                    // 削除したい行のidを取得
+                    contact1.id = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns["id"].Index].Value.ToString();
+                    // クエリ文作成
+                    string cmdtest = "DELETE FROM contacts WHERE id = " + contact1.id;
 
-                            using (var cmd = new SqlCommand(cmdtest, conn))
-                            {
-                                // db接続
-                                conn.Open();
-                                // クエリ文実行
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                    }
-                    catch (Exception ex)
+                    using (var cmd = new SqlCommand(cmdtest, conn))
                     {
-                        MessageBox.Show(ex.Message);
-                    }
-                    finally
-                    {
-                        // 画面の再表示
-                        ScreenDisplay();
+                        // db接続
+                        conn.Open();
+                        // クエリ文実行
+                        cmd.ExecuteNonQuery();
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            // 画面の再表示
+            ScreenDisplay();
         }
 
         /// <summary>
@@ -249,69 +299,68 @@ namespace contracts_manager_app
         /// <param name="e"></param>
         private void export_Click(object sender, EventArgs e)
         {
+            // エクスポートするデータが存在するかどうか
             if (contacts.Rows.Count > 0)
             {
-                // 日時取得
-                DateTime dt = DateTime.Now;
-
-                // csvファイルのパス、ファイル名は連絡先_[年月日時間分]
-                string csvPath = @"C:\Users\toru_yoshida\source\repos\contracts-manager-app\連絡先_"
-                                    + dt.ToString("yyMMddHHmm") + ".csv";
-
                 // csvファイルのパスをフォルダを指定して取得
-
+                FileDialogUse fileDialogUse = new FileDialogUse(new SaveFileDialog());
 
                 // CSVファイルに書き込むときに使うEncoding
                 System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
 
-                // 書き込むファイルを開く
-                StreamWriter sr = new StreamWriter(csvPath, false, enc);
-
-                int colCount = contacts.Columns.Count;
-                int lastColIndex = colCount - 1;
-
-                // ヘッダを書き込む
-                for (int i = 0; i < colCount; i++)
+                // 書き込むフォルダの保存先と名前を指定する
+                // 指定してOKボタンを押した場合、以下の処理を行う
+                if (fileDialogUse.DialogUse())
                 {
-                    // ヘッダの取得
-                    string field = contacts.Columns[i].Caption;
-                    //"で囲む
-                    field = EncloseDoubleQuotesIfNeed(field);
-                    // フィールドを書き込む
-                    sr.Write(field);
-                    // カンマを書き込む
-                    if (lastColIndex > i)
+                    using (StreamWriter sr = new StreamWriter(fileDialogUse.fileDialog.FileName, false, enc))
                     {
-                        sr.Write(',');
-                    }
 
-                }
-                // 改行する
-                sr.Write("\r\n");
+                        int colCount = contacts.Columns.Count;
+                        int lastColIndex = colCount - 1;
 
-                // レコードを書き込む
-                foreach (DataRow row in contacts.Rows)
-                {
-                    for (int i = 0; i < colCount; i++)
-                    {
-                        // フィールドの取得
-                        string field = row[i].ToString();
-                        // "で囲む
-                        field = EncloseDoubleQuotesIfNeed(field);
-                        // フィールドを書き込む
-                        sr.Write(field);
-                        // カンマを書き込む
-                        if (lastColIndex > i)
+                        // ヘッダを書き込む
+                        for (int i = 0; i < colCount; i++)
                         {
-                            sr.Write(',');
+                            // ヘッダの取得
+                            string field = contacts.Columns[i].Caption;
+                            //"で囲む
+                            field = EncloseDoubleQuotesIfNeed(field);
+                            // フィールドを書き込む
+                            sr.Write(field);
+                            // カンマを書き込む
+                            if (lastColIndex > i)
+                            {
+                                sr.Write(',');
+                            }
+
+                        }
+                        // 改行する
+                        sr.Write("\r\n");
+
+                        // レコードを書き込む
+                        foreach (DataRow row in contacts.Rows)
+                        {
+                            for (int i = 0; i < colCount; i++)
+                            {
+                                // フィールドの取得
+                                string field = row[i].ToString();
+                                // "で囲む
+                                field = EncloseDoubleQuotesIfNeed(field);
+                                // フィールドを書き込む
+                                sr.Write(field);
+                                // カンマを書き込む
+                                if (lastColIndex > i)
+                                {
+                                    sr.Write(',');
+                                }
+                            }
+                            // 改行する
+                            sr.Write("\r\n");
                         }
                     }
-                    // 改行する
-                    sr.Write("\r\n");
-                }
-                sr.Close();
 
-                MessageBox.Show(csvPath + "にエクスポートしました");
+                    MessageBox.Show($@"{fileDialogUse.fileDialog.FileName}にエクスポートしました");
+                }
             }
             else
             {
@@ -323,7 +372,7 @@ namespace contracts_manager_app
         /// <summary>
         /// 文字列をダブルクォートで囲む
         /// </summary>
-        private string EncloseDoubleQuotesIfNeed(string field)
+        private String EncloseDoubleQuotesIfNeed(string field)
         {
             if (NeedEncloseDoubleQuotes(field))
             {
@@ -367,71 +416,53 @@ namespace contracts_manager_app
         {
             // CSVファイルを読み取る時に使うEncoding
             System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
-            try
+            // ファイルダイアログを使用する際のインスタンス
+            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog());
+
+            // ダイアログを表示、OKボタンが押されたならインポートの処理を行う
+            if (fileDialogUse.DialogUse())
             {
-                // 読み込みたいCSVファイルをダイアログより選択して開く
-                using (StreamReader sr = new StreamReader(DialogOpen(), enc, false))
+                try
                 {
-                    // 1行目ではないかどうか
-                    // 1行目はヘッダーになっているため読み込んではいけない
-                    bool notFirst = false;
-                    // 末尾まで繰り返す
-                    while (!sr.EndOfStream)
+                    // 読み込みたいCSVファイルをダイアログより選択して開く
+                    using (StreamReader sr = new StreamReader(fileDialogUse.fileDialog.FileName, enc, false))
                     {
-                        // CSVファイルの1行を読み込む
-                        string line = sr.ReadLine();
-
-                        // 2行目以降の場合
-                        if (notFirst)
+                        // 1行目ではないかどうか
+                        // 1行目はヘッダーになっているため読み込んではいけない
+                        bool notFirst = false;
+                        // 末尾まで繰り返す
+                        while (!sr.EndOfStream)
                         {
-                            // 読み込んだ1行をカンマ事に分けて配列に格納する
-                            string[] values = line.Split(',');
+                            // CSVファイルの1行を読み込む
+                            string line = sr.ReadLine();
 
-                            // 配列からリストに格納する
-                            List<string> lists = new List<string>();
-                            lists.AddRange(values);
+                            // 2行目以降の場合
+                            if (notFirst)
+                            {
+                                // 読み込んだ1行をカンマ事に分けて配列に格納する
+                                string[] values = line.Split(',');
 
-                            // リストからDBにインポート
-                            importDB(lists);
+                                // 配列からリストに格納する
+                                List<string> lists = new List<string>();
+                                lists.AddRange(values);
+
+                                // リストからDBにインポート
+                                importDB(lists);
+                            }
+                            notFirst = true;
                         }
-                        notFirst = true;
+                        // 画面の更新
+                        ScreenDisplay();
                     }
-                    // 画面の更新
-                    ScreenDisplay();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
                 }
             }
-            catch(Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
         }
 
-        /// <summary>
-        /// 検索用のダイアログ表示
-        /// </summary>
-        /// <returns>指定したファイルのパス</returns>
-        private string DialogOpen()
-        {
-            // OpenFileDialogクラスのインスタンスを作成
-            OpenFileDialog ofd = new OpenFileDialog();
 
-            //ファイルの種類に表示される選択肢を指定する
-            ofd.Filter = "csvファイル(*.csv)|*.csv";
-            // ファイルの種類ではじめに選択されるものを指定する
-            ofd.FilterIndex = 0;
-            // タイトルを設定する
-            ofd.Title = "開くファイルを選択してください";
-            // ダイアログボックスを閉じる前に現在のディレクトリを復元するようにする
-            ofd.RestoreDirectory = true;
-
-            // ダイアログを表示する
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                return ofd.FileName;
-            }
-
-            return　"";
-        }
 
         /// <summary>
         /// データベースにインポートする際のクエリの処理
