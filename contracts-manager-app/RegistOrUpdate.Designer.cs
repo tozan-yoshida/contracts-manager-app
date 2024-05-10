@@ -1,6 +1,8 @@
-﻿namespace contracts_manager_app
+﻿using Microsoft.Win32;
+
+namespace contracts_manager_app
 {
-    partial class Form2
+    partial class RegistOrUpdate
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +30,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            registOrUpdate = new Button();
             nameBox = new TextBox();
             addressBox = new TextBox();
             telBox = new TextBox();
@@ -41,27 +42,24 @@
             telError = new Label();
             remarkError = new Label();
             addressError = new Label();
+            formInfo = new Label();
+            enter = new Button();
+            label5 = new Label();
+            label6 = new Label();
+            label7 = new Label();
             SuspendLayout();
-            // 
-            // registOrUpdate
-            // 
-            registOrUpdate.Location = new Point(345, 457);
-            registOrUpdate.Name = "registOrUpdate";
-            registOrUpdate.Size = new Size(112, 34);
-            registOrUpdate.TabIndex = 0;
-            registOrUpdate.UseVisualStyleBackColor = true;
-            registOrUpdate.Click += registOrUpdate_Click;
             // 
             // nameBox
             // 
-            nameBox.Location = new Point(345, 88);
+            nameBox.Location = new Point(369, 88);
             nameBox.Name = "nameBox";
             nameBox.Size = new Size(391, 31);
             nameBox.TabIndex = 1;
             // 
             // addressBox
             // 
-            addressBox.Location = new Point(345, 212);
+            addressBox.Location = new Point(369, 212);
+            addressBox.MaxLength = 30;
             addressBox.Name = "addressBox";
             addressBox.Size = new Size(391, 31);
             addressBox.TabIndex = 2;
@@ -69,7 +67,8 @@
             // telBox
             // 
             telBox.ImeMode = ImeMode.Disable;
-            telBox.Location = new Point(345, 150);
+            telBox.Location = new Point(369, 150);
+            telBox.MaxLength = 15;
             telBox.Name = "telBox";
             telBox.ShortcutsEnabled = false;
             telBox.Size = new Size(391, 31);
@@ -78,7 +77,8 @@
             // 
             // remarkBox
             // 
-            remarkBox.Location = new Point(345, 274);
+            remarkBox.Location = new Point(369, 274);
+            remarkBox.MaxLength = 30;
             remarkBox.Multiline = true;
             remarkBox.Name = "remarkBox";
             remarkBox.Size = new Size(391, 97);
@@ -87,7 +87,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(105, 91);
+            label1.Location = new Point(70, 88);
             label1.Name = "label1";
             label1.Size = new Size(48, 25);
             label1.TabIndex = 5;
@@ -96,16 +96,16 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(105, 153);
+            label2.Location = new Point(70, 150);
             label2.Name = "label2";
-            label2.Size = new Size(168, 25);
+            label2.Size = new Size(204, 25);
             label2.TabIndex = 6;
-            label2.Text = "電話番号(15字以内)";
+            label2.Text = "電話番号(数字15字以内)";
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(105, 274);
+            label3.Location = new Point(70, 271);
             label3.Name = "label3";
             label3.Size = new Size(132, 25);
             label3.TabIndex = 7;
@@ -114,17 +114,17 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(105, 215);
+            label4.Location = new Point(70, 212);
             label4.Name = "label4";
-            label4.Size = new Size(190, 25);
+            label4.Size = new Size(266, 25);
             label4.TabIndex = 8;
-            label4.Text = "メールアドレス(30字以内)";
+            label4.Text = "メールアドレス(30字以内、@を含む)";
             // 
             // nameError
             // 
             nameError.AutoSize = true;
             nameError.ForeColor = Color.Crimson;
-            nameError.Location = new Point(345, 122);
+            nameError.Location = new Point(369, 122);
             nameError.Name = "nameError";
             nameError.Size = new Size(22, 25);
             nameError.TabIndex = 9;
@@ -134,7 +134,7 @@
             // 
             telError.AutoSize = true;
             telError.ForeColor = Color.Crimson;
-            telError.Location = new Point(345, 184);
+            telError.Location = new Point(369, 184);
             telError.Name = "telError";
             telError.Size = new Size(22, 25);
             telError.TabIndex = 13;
@@ -144,7 +144,7 @@
             // 
             remarkError.AutoSize = true;
             remarkError.ForeColor = Color.Crimson;
-            remarkError.Location = new Point(345, 374);
+            remarkError.Location = new Point(369, 374);
             remarkError.Name = "remarkError";
             remarkError.Size = new Size(22, 25);
             remarkError.TabIndex = 14;
@@ -154,17 +154,74 @@
             // 
             addressError.AutoSize = true;
             addressError.ForeColor = Color.Crimson;
-            addressError.Location = new Point(345, 246);
+            addressError.Location = new Point(369, 246);
             addressError.Name = "addressError";
             addressError.Size = new Size(22, 25);
             addressError.TabIndex = 15;
             addressError.Text = "  ";
             // 
-            // Form2
+            // formInfo
+            // 
+            formInfo.BackColor = SystemColors.ControlDark;
+            formInfo.Font = new Font("Yu Gothic UI", 13F);
+            formInfo.ForeColor = Color.White;
+            formInfo.Location = new Point(-3, -1);
+            formInfo.Name = "formInfo";
+            formInfo.Size = new Size(3000, 36);
+            formInfo.TabIndex = 16;
+            formInfo.Text = "label5";
+            // 
+            // enter
+            // 
+            enter.BackColor = SystemColors.GradientActiveCaption;
+            enter.Location = new Point(369, 402);
+            enter.Name = "enter";
+            enter.Size = new Size(173, 57);
+            enter.TabIndex = 17;
+            enter.Text = "button1";
+            enter.UseVisualStyleBackColor = false;
+            enter.Click += registOrUpdate_Click;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.ForeColor = Color.Crimson;
+            label5.Location = new Point(115, 88);
+            label5.Name = "label5";
+            label5.Size = new Size(30, 25);
+            label5.TabIndex = 18;
+            label5.Text = "※";
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.ForeColor = Color.Crimson;
+            label6.Location = new Point(270, 150);
+            label6.Name = "label6";
+            label6.Size = new Size(30, 25);
+            label6.TabIndex = 19;
+            label6.Text = "※";
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.ForeColor = Color.Crimson;
+            label7.Location = new Point(333, 212);
+            label7.Name = "label7";
+            label7.Size = new Size(30, 25);
+            label7.TabIndex = 20;
+            label7.Text = "※";
+            // 
+            // RegistOrUpdate
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(856, 531);
+            Controls.Add(label7);
+            Controls.Add(label6);
+            Controls.Add(label5);
+            Controls.Add(enter);
+            Controls.Add(formInfo);
             Controls.Add(addressError);
             Controls.Add(remarkError);
             Controls.Add(telError);
@@ -177,9 +234,9 @@
             Controls.Add(telBox);
             Controls.Add(addressBox);
             Controls.Add(nameBox);
-            Controls.Add(registOrUpdate);
-            Name = "Form2";
-            Text = "Form2";
+            Name = "RegistOrUpdate";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "連絡先画面アプリ";
             ResumeLayout(false);
             PerformLayout();
         }
@@ -199,5 +256,10 @@
         private Label telError;
         private Label remarkError;
         private Label addressError;
+        private Label formInfo;
+        private Button enter;
+        private Label label5;
+        private Label label6;
+        private Label label7;
     }
 }
