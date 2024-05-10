@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("contacts-manager-app")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+244a90814ecce19b2fcc94e4f1b4a52865c4a79d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2bd3439d2cf8a1019ecb94c7a8d5b2eb040b7e1e")]
 [assembly: System.Reflection.AssemblyProductAttribute("contacts-manager-app")]
 [assembly: System.Reflection.AssemblyTitleAttribute("contacts-manager-app")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
