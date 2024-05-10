@@ -86,29 +86,33 @@ namespace contracts_manager_app
             dataGridView1.Columns[addressIndex].FillWeight = 5.0f;
             dataGridView1.Columns[remarkIndex].FillWeight = 7.5f;
 
+            // カラム名を指定
+            dataGridView1.Columns[nameIndex].HeaderText = "名前";
+            dataGridView1.Columns[telIndex].HeaderText = "電話番号";
+            dataGridView1.Columns[addressIndex].HeaderText = "メールアドレス";
+            dataGridView1.Columns[remarkIndex].HeaderText = "備考";
+
+            // idの列を非表示にする
+            dataGridView1.Columns[idIndex].Visible = false;
+
+            dataGridView1.Columns[updateIndex].HeaderText = "";
+            dataGridView1.Columns[deleteIndex].HeaderText = "";
+
             // 登録・編集画面のインスタンス作成
             registOrUpdateScreen = new RegistOrUpdate(this);
 
             contact1 = new Contact("", "", "", "", "");
         }
 
+        /// <summary>
+        /// ロード時のイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_Load(object sender, EventArgs e)
         {
-
-            // カラム名を指定
-            dataGridView1.Columns[3].HeaderText = "名前";
-            dataGridView1.Columns[4].HeaderText = "電話番号";
-            dataGridView1.Columns[5].HeaderText = "メールアドレス";
-            dataGridView1.Columns[6].HeaderText = "備考";
-
-            // はじめの列を非表示にする
-            dataGridView1.Columns[2].Visible = false;
-
-            dataGridView1.Columns[0].HeaderText = "";
-            dataGridView1.Columns[1].HeaderText = "";
-
+            // DatagridViewの表示
             ScreenDisplay();
-
         }
 
         /// <summary>
@@ -167,6 +171,7 @@ namespace contracts_manager_app
             registOrUpdateScreen.update = false;
             // ボタンの表示を"登録"に変更
             registOrUpdateScreen.LabelChanger("登録", "新規追加画面");
+            // 登録画面の表示
             registOrUpdateScreen.ShowDialogPlus();
         }
 
@@ -182,7 +187,7 @@ namespace contracts_manager_app
             // "編集"ボタンを押したときの処理
             if (dgv.Columns[e.ColumnIndex].Name == "編集")
             {
-                EditClick(e);
+                UpdateClick(e);
             }
 
             // "削除"ボタンを押したときの処理
@@ -195,7 +200,7 @@ namespace contracts_manager_app
         /// <summary>
         /// 編集ボタン押下時のイベントの処理内容
         /// </summary>
-        private void EditClick(DataGridViewCellEventArgs e)
+        private void UpdateClick(DataGridViewCellEventArgs e)
         {
             // 編集、更新画面のボタンの表記を"更新"に変更
             registOrUpdateScreen.LabelChanger("更新", "編集画面");
@@ -215,7 +220,6 @@ namespace contracts_manager_app
         /// </summary>
         private void RowInfoStore(DataGridViewCellEventArgs e)
         {
-
             // 押された行の情報取得、格納
             contact1.id = dataGridView1.Rows[e.RowIndex].Cells[idIndex].Value.ToString();
             contact1.name = dataGridView1.Rows[e.RowIndex].Cells[nameIndex].Value.ToString();
@@ -254,7 +258,7 @@ namespace contracts_manager_app
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     // 削除したい行のidを取得
-                    contact1.id = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns["id"].Index].Value.ToString();
+                    contact1.id = dataGridView1.Rows[e.RowIndex].Cells[idIndex].Value.ToString();
                     // クエリ文作成
                     string cmdtest = "DELETE FROM contacts WHERE id = " + contact1.id;
 
@@ -285,10 +289,8 @@ namespace contracts_manager_app
             {
                 // データにフィルターをかける
                 // 条件はテキストボックスの文字列が名前、電話番号、メールアドレス、備考のいずれかの一部もしくは全部に一致
-                contacts.DefaultView.RowFilter = "name LIKE '%" + searchBox.Text + "%' " +
-                                                 "OR tel LIKE'%" + searchBox.Text + "%' " +
-                                                 "OR address LIKE'%" + searchBox.Text + "%' " +
-                                                 "OR remark LIKE'%" + searchBox.Text + "%' ";
+                contacts.DefaultView.RowFilter = @$"name LIKE '%{searchBox.Text}%'
+                                                    OR remark LIKE'%{searchBox.Text}%' ";
             }
         }
 
@@ -302,65 +304,9 @@ namespace contracts_manager_app
             // エクスポートするデータが存在するかどうか
             if (contacts.Rows.Count > 0)
             {
-                // csvファイルのパスをフォルダを指定して取得
-                FileDialogUse fileDialogUse = new FileDialogUse(new SaveFileDialog());
-
-                // CSVファイルに書き込むときに使うEncoding
-                System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
-
-                // 書き込むフォルダの保存先と名前を指定する
-                // 指定してOKボタンを押した場合、以下の処理を行う
-                if (fileDialogUse.DialogUse())
-                {
-                    using (StreamWriter sr = new StreamWriter(fileDialogUse.fileDialog.FileName, false, enc))
-                    {
-
-                        int colCount = contacts.Columns.Count;
-                        int lastColIndex = colCount - 1;
-
-                        // ヘッダを書き込む
-                        for (int i = 0; i < colCount; i++)
-                        {
-                            // ヘッダの取得
-                            string field = contacts.Columns[i].Caption;
-                            //"で囲む
-                            field = EncloseDoubleQuotesIfNeed(field);
-                            // フィールドを書き込む
-                            sr.Write(field);
-                            // カンマを書き込む
-                            if (lastColIndex > i)
-                            {
-                                sr.Write(',');
-                            }
-
-                        }
-                        // 改行する
-                        sr.Write("\r\n");
-
-                        // レコードを書き込む
-                        foreach (DataRow row in contacts.Rows)
-                        {
-                            for (int i = 0; i < colCount; i++)
-                            {
-                                // フィールドの取得
-                                string field = row[i].ToString();
-                                // "で囲む
-                                field = EncloseDoubleQuotesIfNeed(field);
-                                // フィールドを書き込む
-                                sr.Write(field);
-                                // カンマを書き込む
-                                if (lastColIndex > i)
-                                {
-                                    sr.Write(',');
-                                }
-                            }
-                            // 改行する
-                            sr.Write("\r\n");
-                        }
-                    }
-
-                    MessageBox.Show($@"{fileDialogUse.fileDialog.FileName}にエクスポートしました");
-                }
+                // エクスポートするデータ存在時の処理
+                ExportEvent exportEvent = new ExportEvent(contacts);
+                exportEvent.ExportEventOccur();
             }
             else
             {
@@ -368,143 +314,13 @@ namespace contracts_manager_app
             }
         }
 
-
-        /// <summary>
-        /// 文字列をダブルクォートで囲む
-        /// </summary>
-        private String EncloseDoubleQuotesIfNeed(string field)
-        {
-            if (NeedEncloseDoubleQuotes(field))
-            {
-                return EncloseDoubleQuotes(field);
-            }
-            return field;
-        }
-
-        /// <summary>
-        /// 文字列をダブルクォートで囲む
-        /// </summary>
-        private string EncloseDoubleQuotes(string field)
-        {
-            if (field.IndexOf('"') > -1)
-            {
-                //"を""とする
-                field = field.Replace("\"", "\"\"");
-            }
-            return "\"" + field + "\"";
-        }
-
-        /// <summary>
-        /// 文字列をダブルクォートで囲む必要があるか調べる
-        /// </summary>
-        private bool NeedEncloseDoubleQuotes(string field)
-        {
-            return field.IndexOf('"') > -1 ||
-                field.IndexOf(',') > -1 ||
-                field.IndexOf('\r') > -1 ||
-                field.IndexOf('\n') > -1 ||
-                field.StartsWith(" ") ||
-                field.StartsWith("\t") ||
-                field.EndsWith(" ") ||
-                field.EndsWith("\t");
-        }
-
         /// <summary>
         /// インポートボタン押下時のイベント
         /// </summary>
         private void import_Click(object sender, EventArgs e)
         {
-            // CSVファイルを読み取る時に使うEncoding
-            System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
-            // ファイルダイアログを使用する際のインスタンス
-            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog());
-
-            // ダイアログを表示、OKボタンが押されたならインポートの処理を行う
-            if (fileDialogUse.DialogUse())
-            {
-                try
-                {
-                    // 読み込みたいCSVファイルをダイアログより選択して開く
-                    using (StreamReader sr = new StreamReader(fileDialogUse.fileDialog.FileName, enc, false))
-                    {
-                        // 1行目ではないかどうか
-                        // 1行目はヘッダーになっているため読み込んではいけない
-                        bool notFirst = false;
-                        // 末尾まで繰り返す
-                        while (!sr.EndOfStream)
-                        {
-                            // CSVファイルの1行を読み込む
-                            string line = sr.ReadLine();
-
-                            // 2行目以降の場合
-                            if (notFirst)
-                            {
-                                // 読み込んだ1行をカンマ事に分けて配列に格納する
-                                string[] values = line.Split(',');
-
-                                // 配列からリストに格納する
-                                List<string> lists = new List<string>();
-                                lists.AddRange(values);
-
-                                // リストからDBにインポート
-                                importDB(lists);
-                            }
-                            notFirst = true;
-                        }
-                        // 画面の更新
-                        ScreenDisplay();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                }
-            }
-        }
-
-
-
-        /// <summary>
-        /// データベースにインポートする際のクエリの処理
-        /// </summary>
-        /// <param name="lists"></param>
-        private void importDB(List<string> lists)
-        {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    // クエリ文作成
-                    string cmdtxt = "SET IDENTITY_INSERT contacts ON " +
-                                    "MERGE INTO contacts AS target " +
-                                    "USING " +
-                                        "(VALUES (" + lists[0] + ",'" + lists[1] + "','" + lists[2] + "','" + lists[3] + "','" + lists[4] + "')" +
-                                        ")AS source(id, name, tel, address, remark) " +
-                                    "ON target.id = source.id " +
-                                    "WHEN MATCHED THEN " +
-                                        "UPDATE SET target.name = source.name, " +
-                                        "target.tel = source.tel, " +
-                                        "target.address = source.address, " +
-                                        "target.remark = source.remark " +
-                                    "WHEN NOT MATCHED THEN " +
-                                        "INSERT(id, name, tel, address, remark) " +
-                                        "VALUES(source.id, source.name, source.tel, source.address, source.remark); " +
-                                  "SET IDENTITY_INSERT contacts OFF";
-                                       
-
-                    // MessageBox.Show(cmdtxt);
-                    using (SqlCommand cmd = conn.CreateCommand())
-                    {
-                        conn.Open();
-                        cmd.CommandText = cmdtxt;
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+            ImportEvent importEvent = new ImportEvent(this, connectionString);
+            importEvent.ImportEventOccur();
         }
 
         /// <summary>
