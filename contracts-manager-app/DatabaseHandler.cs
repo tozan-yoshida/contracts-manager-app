@@ -23,7 +23,7 @@ namespace contracts_manager_app
         }
 
         /// <summary>
-        /// DBにMERGE INTOするときのクエリ文作成、実行
+        /// DBにMERGE INTOするときのクエリ文作成、実
         /// </summary>
         /// <param name="contact">DBに加えたい連絡先</param>
         public void MergeIntoContact(Contact contact)
