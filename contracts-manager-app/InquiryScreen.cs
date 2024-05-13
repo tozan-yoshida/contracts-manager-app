@@ -16,8 +16,10 @@ namespace contracts_manager_app
         // データベースとの接続文字列作成
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
+        // 登録・更新画面のフォーム
         private RegistOrUpdate registOrUpdateScreen;
 
+        // 連絡先の格納クラス
         public Contact contact1 { get; set; }
 
         // それぞれの情報が何列目にあるか
@@ -28,6 +30,11 @@ namespace contracts_manager_app
         private int telIndex;       // 電話番号
         private int addressIndex;   // メールアドレス
         private int remarkIndex;    // 備考
+
+        // ボタン列
+        private DataGridViewButtonColumn updateButtonColumn;
+        private DataGridViewButtonColumn deleteButtonColumn;
+
 
         public DatabaseHandler databaseHandler { get; set; }
 
@@ -42,28 +49,28 @@ namespace contracts_manager_app
             dataGridView1.DataSource = contacts;
 
             // DataGridViewButtonColumnの作成
-            DataGridViewButtonColumn updateButton = new DataGridViewButtonColumn();
-            DataGridViewButtonColumn deleteButton = new DataGridViewButtonColumn();
+            updateButtonColumn = new DataGridViewButtonColumn();
+            deleteButtonColumn = new DataGridViewButtonColumn();
 
             // 列の名前を設定
-            updateButton.Name = "編集";
-            deleteButton.Name = "削除";
+            updateButtonColumn.Name = "編集";
+            deleteButtonColumn.Name = "削除";
 
             // すべてのボタンに"編集"、"削除"と表示する
-            updateButton.UseColumnTextForButtonValue = true;
-            deleteButton.UseColumnTextForButtonValue = true;
-            updateButton.Text = "編集";
-            deleteButton.Text = "削除";
+            updateButtonColumn.UseColumnTextForButtonValue = true;
+            deleteButtonColumn.UseColumnTextForButtonValue = true;
+            updateButtonColumn.Text = "編集";
+            deleteButtonColumn.Text = "削除";
 
             // ボタンの背景色変更
-            updateButton.FlatStyle = FlatStyle.Flat;
-            deleteButton.FlatStyle = FlatStyle.Flat;
-            updateButton.DefaultCellStyle.BackColor = Color.LightGreen;
-            deleteButton.DefaultCellStyle.BackColor = Color.Coral;
+            updateButtonColumn.FlatStyle = FlatStyle.Flat;
+            deleteButtonColumn.FlatStyle = FlatStyle.Flat;
+            updateButtonColumn.DefaultCellStyle.BackColor = Color.LightGreen;
+            deleteButtonColumn.DefaultCellStyle.BackColor = Color.Coral;
 
             // DataGridViewに追加する
-            dataGridView1.Columns.Add(updateButton);
-            dataGridView1.Columns.Add(deleteButton);            
+            dataGridView1.Columns.Add(updateButtonColumn);
+            dataGridView1.Columns.Add(deleteButtonColumn);
             contacts.Columns.Add("id", typeof(int));
             contacts.Columns.Add("name", typeof(string));
             contacts.Columns.Add("tel", typeof(string));
@@ -84,7 +91,7 @@ namespace contracts_manager_app
             dataGridView1.Columns[deleteIndex].FillWeight = 1.0f;
             dataGridView1.Columns[idIndex].FillWeight = 1.0f;
             dataGridView1.Columns[nameIndex].FillWeight = 4.0f;
-            dataGridView1.Columns[telIndex].FillWeight = 2.6f;
+            dataGridView1.Columns[telIndex].FillWeight = 2.8f;
             dataGridView1.Columns[addressIndex].FillWeight = 5.0f;
             dataGridView1.Columns[remarkIndex].FillWeight = 7.5f;
 
@@ -131,7 +138,7 @@ namespace contracts_manager_app
             // 行フィルターをオフにする
             contacts.DefaultView.RowFilter = null;
 
-            // 
+            // DB上からデータテーブルにデータを渡す
             databaseHandler.DataAdaptDataTable("SELECT * FROM contacts", contacts);
 
             // dataGridViewの初期表示でセルを選択させない
@@ -171,7 +178,7 @@ namespace contracts_manager_app
             // "削除"ボタンを押したときの処理
             else if (dgv.Columns[e.ColumnIndex].Name == "削除")
             {
-                DeleteClick(e);                
+                DeleteClick(e);
             }
         }
 
@@ -204,7 +211,7 @@ namespace contracts_manager_app
             contact1.tel = dataGridView1.Rows[e.RowIndex].Cells[telIndex].Value.ToString();
             contact1.address = dataGridView1.Rows[e.RowIndex].Cells[addressIndex].Value.ToString();
             // 備考は何も入力されていない場合があるためif文で判断
-            if (dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value != null) 
+            if (dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value != null)
                 contact1.remark = dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value.ToString();
         }
 
@@ -221,7 +228,7 @@ namespace contracts_manager_app
             // OKを押したときの処理
             if (result == DialogResult.OK)
             {
-               PushDeleteOk(e);
+                PushDeleteOk(e);
             }
         }
 
@@ -233,10 +240,9 @@ namespace contracts_manager_app
         {
             // 削除したい行のidを取得
             contact1.id = dataGridView1.Rows[e.RowIndex].Cells[idIndex].Value.ToString();
-            // クエリ文作成
-            string cmdTxt = $@"DELETE FROM contacts WHERE id = {contact1.id}";
-            // クエリ文実行
-            databaseHandler.DatabaseHandleExecuteNonQuery(cmdTxt);
+
+            // Deleteクエリ文作成、実行
+            databaseHandler.DeleteContact(contact1.id);
 
             // 画面の再表示
             ScreenDisplay();
@@ -255,6 +261,9 @@ namespace contracts_manager_app
                 contacts.DefaultView.RowFilter = @$"name LIKE '%{searchBox.Text}%'
                                                     OR remark LIKE'%{searchBox.Text}%' ";
             }
+            // dataGridViewの初期表示でセルを選択させない
+            dataGridView1.CurrentCell = null;
+            dataGridView1.ClearSelection();
         }
 
         /// <summary>
@@ -460,7 +469,7 @@ namespace contracts_manager_app
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                MessageBox.Show("エラー: " + ex.Message);
             }
         }
 
@@ -494,50 +503,19 @@ namespace contracts_manager_app
             // 読み込んだ1行をカンマ事に分けて配列に格納する
             string[] values = line.Split(',');
 
-            // 配列からリストに格納する
-            List<string> lists = new List<string>();
-            lists.AddRange(values);
-
-            // リストからDBにインポート
-            importDB(lists);
+            // 配列からコンタクトクラスに格納する
+            Contact contact = new Contact(values[0], values[1], values[2], values[3], values[4]);
+            // コンタクトクラスをDBにインポート
+            databaseHandler.MergeIntoContact(contact);
         }
-
-
 
         /// <summary>
-        /// データベースにインポートする際のクエリの処理
+        /// 再読込ボタン押下時のイベント
         /// </summary>
-        /// <param name="lists"></param>
-        private void importDB(List<string> lists)
-        {
-            // クエリ文作成
-            string cmdtxt = @$"SET IDENTITY_INSERT contacts ON 
-                                    MERGE INTO contacts AS target 
-                                    USING 
-                                        (VALUES ({lists[0]},'{lists[1]}','{lists[2]}','{lists[3]}','{lists[4]}')
-                                        )AS source(id, name, tel, address, remark) 
-                                    ON target.id = source.id 
-                                    WHEN MATCHED THEN 
-                                        UPDATE SET target.name = source.name, 
-                                        target.tel = source.tel, 
-                                        target.address = source.address, 
-                                        target.remark = source.remark 
-                                    WHEN NOT MATCHED THEN 
-                                        INSERT(id, name, tel, address, remark) 
-                                        VALUES(source.id, source.name, source.tel, source.address, source.remark); 
-                                  SET IDENTITY_INSERT contacts OFF";
-
-            // クエリ文実行
-            databaseHandler.DatabaseHandleExecuteNonQuery(cmdtxt);
-        }
-    
-
-    /// <summary>
-    /// 全連絡先表示ボタン押下時のイベント
-    /// </summary>
-    private void showAllContacts_Click(object sender, EventArgs e)
+        private void showAllContacts_Click(object sender, EventArgs e)
         {
             ScreenDisplay();
+            searchBox.Text = "";
         }
     }
 }
