@@ -22,13 +22,14 @@ namespace contracts_manager_app
         public bool update { get; set; } = false;
         private bool error { get; set; } = false;
         private InquiryScreen inquiryScreen;
-        static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
+        private DatabaseHandler databaseHandler;
 
 
 
         public RegistOrUpdate(InquiryScreen inquiryScreen)
         {
             this.inquiryScreen = inquiryScreen;
+            this.databaseHandler = inquiryScreen.databaseHandler;
             InitializeComponent();
         }
 
@@ -75,7 +76,8 @@ namespace contracts_manager_app
             // アドレスエラー判定
             CheckAddressError();
 
-            // 
+            // 備考エラー判定
+            CheckRemarkError();
         }
 
         /// <summary>
@@ -200,6 +202,18 @@ namespace contracts_manager_app
         }
 
         /// <summary>
+        /// 備考のエラーの処理
+        /// </summary>
+        private void CheckRemarkError()
+        {
+            if(remarkBox.Text.Length > 30)
+            {
+                error = true;
+                remarkError.Text = "備考は30字以内で入力してください";
+            }
+        }
+
+        /// <summary>
         /// 登録・編集の処理
         /// </summary>
         private void RegistOrUpdateToDB()
@@ -217,38 +231,23 @@ namespace contracts_manager_app
         /// </summary>
         private void MergeIntoDB()
         {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    using (SqlCommand cmd = conn.CreateCommand())
-                    {
-                        // 入力情報をdbにmerge intoするためのクエリ文
-                        cmd.CommandText = "MERGE INTO contacts AS target " +
-                                            "USING " +
-                                                "(VALUES " +
-                                                    "(" + inquiryScreen.contact1.id + ",'" + nameBox.Text + "','" + telBox.Text + "','" + addressBox.Text + "','" + remarkBox.Text + "') " +
-                                                ") AS source(id, name, tel, address, remark) " +
-                                            "ON target.id = source.id " +
-                                            "WHEN MATCHED THEN " +
-                                                "UPDATE SET target.name = source.name, " +
-                                                "target.tel = source.tel, " +
-                                                "target.address = source.address, " +
-                                                "target.remark = source.remark " +
-                                            "WHEN NOT MATCHED THEN " +
-                                                "INSERT (name, tel, address, remark) " +
-                                                "VALUES (source.name, source.tel, source.address, source.remark); ";
-                        // db接続
-                        conn.Open();
-                        // クエリ文実行
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+            // 入力情報をdbにmerge intoするためのクエリ文
+            string cmdTxt =              $@"MERGE INTO contacts AS target
+                                            USING
+                                                (VALUES 
+                                                    ({inquiryScreen.contact1.id},'{nameBox.Text}','{telBox.Text}','{addressBox.Text}','{remarkBox.Text}')
+                                                ) AS source(id, name, tel, address, remark)
+                                            ON target.id = source.id 
+                                            WHEN MATCHED THEN 
+                                                UPDATE SET target.name = source.name, 
+                                                target.tel = source.tel, 
+                                                target.address = source.address, 
+                                                target.remark = source.remark 
+                                            WHEN NOT MATCHED THEN 
+                                                INSERT (name, tel, address, remark)
+                                                VALUES (source.name, source.tel, source.address, source.remark); ";
+
+            databaseHandler.DatabaseHandleExecuteNonQuery(cmdTxt);
         }
 
         /// <summary>
@@ -306,6 +305,9 @@ namespace contracts_manager_app
             ShowDialog();
         }
 
+        /// <summary>
+        /// テキストボックスの初期化
+        /// </summary>
         private void TextBoxInitialization()
         {
             nameBox.Text = string.Empty;
