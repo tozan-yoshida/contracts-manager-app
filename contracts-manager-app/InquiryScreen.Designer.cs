@@ -110,7 +110,6 @@
             dataGridView1.Size = new Size(1342, 205);
             dataGridView1.TabIndex = 4;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
-            dataGridView1.RowsAdded += dataGridView1_RowsAdded;
             // 
             // contactBindingSource
             // 
