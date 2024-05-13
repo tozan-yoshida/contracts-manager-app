@@ -29,6 +29,8 @@ namespace contracts_manager_app
         private int addressIndex;   // メールアドレス
         private int remarkIndex;    // 備考
 
+        public DatabaseHandler databaseHandler { get; set; }
+
         public InquiryScreen()
         {
             InitializeComponent();
@@ -87,6 +89,8 @@ namespace contracts_manager_app
             dataGridView1.Columns[remarkIndex].FillWeight = 7.5f;
 
             // カラム名を指定
+            dataGridView1.Columns[updateIndex].HeaderText = "";
+            dataGridView1.Columns[deleteIndex].HeaderText = "";
             dataGridView1.Columns[nameIndex].HeaderText = "名前";
             dataGridView1.Columns[telIndex].HeaderText = "電話番号";
             dataGridView1.Columns[addressIndex].HeaderText = "メールアドレス";
@@ -95,13 +99,14 @@ namespace contracts_manager_app
             // idの列を非表示にする
             dataGridView1.Columns[idIndex].Visible = false;
 
-            dataGridView1.Columns[updateIndex].HeaderText = "";
-            dataGridView1.Columns[deleteIndex].HeaderText = "";
+            // データベースハンドラのインスタンス作成
+            databaseHandler = new DatabaseHandler(connectionString);
 
             // 登録・編集画面のインスタンス作成
             registOrUpdateScreen = new RegistOrUpdate(this);
 
             contact1 = new Contact("", "", "", "", "");
+
         }
 
         /// <summary>
@@ -116,45 +121,18 @@ namespace contracts_manager_app
         }
 
         /// <summary>
-        /// DataGridViewの表を(再)取得する
+        /// DataGridViewの表をDBより(再)取得する
         /// </summary>
         public void ScreenDisplay()
         {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    // 表示の初期化
-                    contacts.Clear();
+            // 表示の初期化
+            contacts.Clear();
 
-                    // 行フィルターをオフにする
-                    contacts.DefaultView.RowFilter = null;
+            // 行フィルターをオフにする
+            contacts.DefaultView.RowFilter = null;
 
-                    // テーブルの全要素取得コマンドの生成
-                    var cmd = connection.CreateCommand();
-                    cmd.CommandText = "SELECT * FROM contacts";
-
-                    // db接続
-                    connection.Open();
-                    Debug.WriteLine("接続成功");
-
-                    using (var sdr = cmd.ExecuteReader())
-                    {
-                        if (sdr.HasRows)
-                        {
-                            while (sdr.Read())
-                            {
-                                contacts.Rows.Add(sdr["id"], sdr["name"].ToString(), sdr["tel"].ToString(), sdr["address"].ToString(), sdr["remark"].ToString());
-                            }
-                        }
-                    }
-
-                }
-            }
-            catch (SqlException ex)
-            {
-                Debug.WriteLine("ｴﾗｰ" + ex.Message);
-            }
+            // 
+            databaseHandler.DataAdaptDataTable("SELECT * FROM contacts", contacts);
 
             // dataGridViewの初期表示でセルを選択させない
             dataGridView1.CurrentCell = null;
@@ -253,28 +231,13 @@ namespace contracts_manager_app
         /// </summary>
         private void PushDeleteOk(DataGridViewCellEventArgs e)
         {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    // 削除したい行のidを取得
-                    contact1.id = dataGridView1.Rows[e.RowIndex].Cells[idIndex].Value.ToString();
-                    // クエリ文作成
-                    string cmdtest = "DELETE FROM contacts WHERE id = " + contact1.id;
+            // 削除したい行のidを取得
+            contact1.id = dataGridView1.Rows[e.RowIndex].Cells[idIndex].Value.ToString();
+            // クエリ文作成
+            string cmdTxt = $@"DELETE FROM contacts WHERE id = {contact1.id}";
+            // クエリ文実行
+            databaseHandler.DatabaseHandleExecuteNonQuery(cmdTxt);
 
-                    using (var cmd = new SqlCommand(cmdtest, conn))
-                    {
-                        // db接続
-                        conn.Open();
-                        // クエリ文実行
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
             // 画面の再表示
             ScreenDisplay();
         }
@@ -288,7 +251,7 @@ namespace contracts_manager_app
             if (searchBox.Text.Length > 0)
             {
                 // データにフィルターをかける
-                // 条件はテキストボックスの文字列が名前、電話番号、メールアドレス、備考のいずれかの一部もしくは全部に一致
+                // 条件はテキストボックスの文字列が名前、備考のいずれかの一部もしくは全部に一致
                 contacts.DefaultView.RowFilter = @$"name LIKE '%{searchBox.Text}%'
                                                     OR remark LIKE'%{searchBox.Text}%' ";
             }
@@ -305,8 +268,7 @@ namespace contracts_manager_app
             if (contacts.Rows.Count > 0)
             {
                 // エクスポートするデータ存在時の処理
-                ExportEvent exportEvent = new ExportEvent(contacts);
-                exportEvent.ExportEventOccur();
+                ExportEvent();
             }
             else
             {
@@ -315,18 +277,265 @@ namespace contracts_manager_app
         }
 
         /// <summary>
+        /// エクスポートするデータ存在時の処理
+        /// </summary>
+        private void ExportEvent()
+        {
+            // csvファイルのパスをフォルダを指定して取得
+            FileDialogUse fileDialogUse = new FileDialogUse(new SaveFileDialog());
+
+            // CSVファイルに書き込むときに使うEncoding
+            System.Text.Encoding encoding = System.Text.Encoding.GetEncoding("Shift_JIS");
+
+            // 書き込むフォルダの保存先と名前を指定する
+            // 指定してOKボタンを押した場合、以下の処理を行う
+            if (fileDialogUse.DialogUse())
+            {
+                ExportPushOK(fileDialogUse.fileDialog.FileName, encoding);
+                MessageBox.Show($@"{fileDialogUse.fileDialog.FileName}にエクスポートしました");
+            }
+        }
+
+        /// <summary>
+        /// ダイアログでOK押下時の処理
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="encoding"></param>
+        private void ExportPushOK(string fileName, System.Text.Encoding encoding)
+        {
+            try
+            {
+                using (StreamWriter sr = new StreamWriter(fileName, false, encoding))
+                {
+                    int colCount = contacts.Columns.Count;  // 列の数
+                    int lastColIndex = colCount - 1;        // 最後の列の列番号
+
+                    // ヘッダを書き込む
+                    WriteHeader(sr, colCount, lastColIndex);
+                    // 改行する
+                    sr.Write("\r\n");
+                    // レコードを書き込む
+                    WriteRecord(sr, colCount, lastColIndex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// ヘッダの書き込み処理
+        /// </summary>
+        /// <param name="colCount">列の数</param>
+        /// <param name="lastColIndex">最後の列の列番号</param>
+        private void WriteHeader(StreamWriter sr, int colCount, int lastColIndex)
+        {
+            // 列数だけ繰り返し
+            for (int i = 0; i < colCount; i++)
+            {
+                // ヘッダの取得
+                string field = contacts.Columns[i].Caption;
+                // csvへの書き込み処理
+                WriteCsv(sr, lastColIndex, i, field);
+            }
+        }
+
+        /// <summary>
+        /// レコードの書き込み処理
+        /// </summary>
+        /// <param name="colCount">列の数</param>
+        /// <param name="lastColIndex">最後の列の列番号</param>
+        private void WriteRecord(StreamWriter sr, int colCount, int lastColIndex)
+        {
+            foreach (DataRow row in contacts.Rows)
+            {
+                for (int i = 0; i < colCount; i++)
+                {
+                    // フィールドの取得
+                    string field = row[i].ToString();
+                    // csvへの書き込み処理
+                    WriteCsv(sr, lastColIndex, i, field);
+                }
+                // 改行する
+                sr.Write("\r\n");
+            }
+        }
+
+        /// <summary>
+        /// csvファイルへの書き込み処理
+        /// </summary>
+        /// <param name="lastColIndex">最後の列の列番号</param>
+        /// <param name="field">csvに書きこむ元データ</param>
+        private void WriteCsv(StreamWriter sr, int lastColIndex, int i, string field)
+        {
+            // "で囲む
+            field = EncloseDoubleQuotesIfNeed(field);
+            // フィールドを書き込む
+            sr.Write(field);
+            // カンマを書き込む
+            if (lastColIndex > i)
+            {
+                sr.Write(',');
+            }
+        }
+
+        /// <summary>
+        /// 文字列をダブルクォートで囲む
+        /// </summary>
+        private String EncloseDoubleQuotesIfNeed(string field)
+        {
+            if (NeedEncloseDoubleQuotes(field))
+            {
+                return EncloseDoubleQuotes(field);
+            }
+            return field;
+        }
+
+        /// <summary>
+        /// 文字列をダブルクォートで囲む
+        /// </summary>
+        private string EncloseDoubleQuotes(string field)
+        {
+            if (field.IndexOf('"') > -1)
+            {
+                //"を""とする
+                field = field.Replace("\"", "\"\"");
+            }
+            return "\"" + field + "\"";
+        }
+
+        /// <summary>
+        /// 文字列をダブルクォートで囲む必要があるか調べる
+        /// </summary>
+        private bool NeedEncloseDoubleQuotes(string field)
+        {
+            return field.IndexOf('"') > -1 ||
+                field.IndexOf(',') > -1 ||
+                field.IndexOf('\r') > -1 ||
+                field.IndexOf('\n') > -1 ||
+                field.StartsWith(" ") ||
+                field.StartsWith("\t") ||
+                field.EndsWith(" ") ||
+                field.EndsWith("\t");
+        }
+
+        /// <summary>
         /// インポートボタン押下時のイベント
         /// </summary>
         private void import_Click(object sender, EventArgs e)
         {
-            ImportEvent importEvent = new ImportEvent(this, connectionString);
-            importEvent.ImportEventOccur();
+            // CSVファイルを読み取る時に使うEncoding
+            System.Text.Encoding encoding = System.Text.Encoding.GetEncoding("Shift_JIS");
+            // ファイルダイアログを使用する際のインスタンス
+            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog());
+
+            // ダイアログを表示、OKボタンが押されたならインポートの処理を行う
+            if (fileDialogUse.DialogUse())
+            {
+                ImportPushOK(fileDialogUse.fileDialog.FileName, encoding);
+            }
         }
 
         /// <summary>
-        /// 全連絡先表示ボタン押下時のイベント
+        /// ダイアログでOK押下時の処理
         /// </summary>
-        private void showAllContacts_Click(object sender, EventArgs e)
+        /// <param name="fileName"></param>
+        /// <param name="encoding"></param>
+        private void ImportPushOK(string fileName, System.Text.Encoding encoding)
+        {
+            try
+            {
+                // 読み込みたいCSVファイルをダイアログより選択して開く
+                using (StreamReader sr = new StreamReader(fileName, encoding, false))
+                {
+                    // 1行目ではないかどうか
+                    // 1行目はヘッダーになっているため書き出してはいけない
+                    bool notFirst = false;
+                    // 末尾まで繰り返す
+                    ReadCsv(sr, notFirst);
+                    // 画面の更新
+                    ScreenDisplay();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// csvファイルの読み込みの繰り返し処理
+        /// </summary>
+        /// <param name="sr"></param>
+        /// <param name="notFirst">読み込んだ行が1行目か否か</param>
+        private void ReadCsv(StreamReader sr, bool notFirst)
+        {
+            while (!sr.EndOfStream)
+            {
+                // CSVファイルを1行読み込む
+                string line = sr.ReadLine();
+
+                // 2行目以降の場合
+                if (notFirst)
+                {
+                    ReadCsvNotFirst(line);
+                }
+                notFirst = true;
+            }
+        }
+
+        /// <summary>
+        /// csvファイルの2行目以降を読み込んだ時の処理
+        /// </summary>
+        /// <param name="line"></param>
+        private void ReadCsvNotFirst(string line)
+        {
+            // 読み込んだ1行をカンマ事に分けて配列に格納する
+            string[] values = line.Split(',');
+
+            // 配列からリストに格納する
+            List<string> lists = new List<string>();
+            lists.AddRange(values);
+
+            // リストからDBにインポート
+            importDB(lists);
+        }
+
+
+
+        /// <summary>
+        /// データベースにインポートする際のクエリの処理
+        /// </summary>
+        /// <param name="lists"></param>
+        private void importDB(List<string> lists)
+        {
+            // クエリ文作成
+            string cmdtxt = @$"SET IDENTITY_INSERT contacts ON 
+                                    MERGE INTO contacts AS target 
+                                    USING 
+                                        (VALUES ({lists[0]},'{lists[1]}','{lists[2]}','{lists[3]}','{lists[4]}')
+                                        )AS source(id, name, tel, address, remark) 
+                                    ON target.id = source.id 
+                                    WHEN MATCHED THEN 
+                                        UPDATE SET target.name = source.name, 
+                                        target.tel = source.tel, 
+                                        target.address = source.address, 
+                                        target.remark = source.remark 
+                                    WHEN NOT MATCHED THEN 
+                                        INSERT(id, name, tel, address, remark) 
+                                        VALUES(source.id, source.name, source.tel, source.address, source.remark); 
+                                  SET IDENTITY_INSERT contacts OFF";
+
+            // クエリ文実行
+            databaseHandler.DatabaseHandleExecuteNonQuery(cmdtxt);
+        }
+    
+
+    /// <summary>
+    /// 全連絡先表示ボタン押下時のイベント
+    /// </summary>
+    private void showAllContacts_Click(object sender, EventArgs e)
         {
             ScreenDisplay();
         }

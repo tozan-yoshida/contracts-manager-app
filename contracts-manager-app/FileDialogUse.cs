@@ -27,7 +27,7 @@ namespace contracts_manager_app
         public bool DialogUse()
         {
             // タイトルとはじめのファイル名を設定
-            DialogTitleAndName();
+            DialogTitleAndNameHandler();
             // [ファイルの種類]に表示される選択肢を指定する
             fileDialog.Filter = "csvファイル(*.csv)|*.csv";
             // [ファイルの種類]ではじめに選択されるものを指定する
@@ -50,7 +50,7 @@ namespace contracts_manager_app
         /// <summary>
         /// フィールド fileDialog のクラスによってタイトルや初期のファイル名を変更する
         /// </summary>
-        private void DialogTitleAndName()
+        private void DialogTitleAndNameHandler()
         {
             // fileDialog が OpenFileDialog クラスの場合
             if(fileDialog is OpenFileDialog)
