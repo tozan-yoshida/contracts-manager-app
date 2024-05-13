@@ -236,7 +236,7 @@ namespace contracts_manager_app
             Controls.Add(nameBox);
             Name = "RegistOrUpdate";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "連絡先画面アプリ";
+            Text = "連絡先管理アプリ";
             ResumeLayout(false);
             PerformLayout();
         }

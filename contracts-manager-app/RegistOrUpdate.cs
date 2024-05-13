@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -34,135 +35,227 @@ namespace contracts_manager_app
 
         private void registOrUpdate_Click(object sender, EventArgs e)
         {
+            // エラーの初期化
+            ErrorInitialization();
+            // エラー判定
+            CheckError();
+
+            // エラーが一つも起きていないときに限り下の処理を行う
+            // 新規登録、更新処理
+            if (!error)            
+            {
+                RegistOrUpdateToDB();
+            }
+        }
+
+        /// <summary>
+        /// エラー判定とエラー用テキストボックスの初期化
+        /// </summary>
+        private void ErrorInitialization()
+        {
             // 諸々初期化
             error = false;
             nameError.Text = string.Empty;
             telError.Text = string.Empty;
             addressError.Text = string.Empty;
             remarkError.Text = string.Empty;
+        }
 
-
-            // エラー判定
-
+        /// <summary>
+        /// 各種エラー判定を行う
+        /// </summary>
+        private void CheckError()
+        {
             // 名称エラー判定
+            CheckNameError();
+
+            // 電話番号エラー判定
+            CheckTelError();
+
+            // アドレスエラー判定
+            CheckAddressError();
+
+            // 
+        }
+
+        /// <summary>
+        /// 名称エラー判定
+        /// </summary>
+        private void CheckNameError()
+        {
             // 名前が入力されているか
             if (nameBox.Text.Length >= 1)
             {
-                List<string> idList = new List<string>();
-                // 名前が同一の行を連絡先テーブルから抽出、リスト化
-                foreach (DataRow dr in inquiryScreen.contacts.Rows)
-                {
-                    if (dr["name"].Equals(nameBox.Text))
-                    {
-                        idList.Add(dr["id"].ToString());
-                    }
-                }
-
-                // 更新の場合
-                if (update)
-                {
-                    // idが別で同じ名前のオブジェクトが存在しているか
-                    foreach (var item in idList)
-                    {
-                        // している場合重複エラー
-                        if(!item.Equals(inquiryScreen.contact1.id))
-                        {
-                            error = true;
-                            nameError.Text = "この名前は既に登録されています";
-                            break;
-                        }
-                    }
-                }
-                // 新規登録の場合
-                else
-                {
-                    // 同じ名前のオブジェクトが存在している場合、重複エラー
-                    if (idList.Any())
-                    {
-                        error = true;
-                        nameError.Text = "この名前は既に登録されています";
-                    }
-                }
+                CheckNameExist();
             }
             else
             {
                 error = true;
                 nameError.Text = "名前を入力してください";
             }
+        }
 
-            // 番号エラー判定
-            // 1字以上15字以下か(数字のみになるようにテキストボックスの設定をしている)
-            if (!(telBox.Text.Length >= 1 && telBox.Text.Length <= 15))
+        /// <summary>
+        /// nameBox に文字列が存在する場合の処理
+        /// </summary>
+        private void CheckNameExist()
+        {
+            // 同一の名前をもつテーブルのidを格納するリスト
+            List<string> idList = new List<string>();
+            // 名前が同一の行を連絡先テーブルから抽出、idをリスト化
+            SameNameList(idList);
+
+            // 更新・新規登録の重複エラーチェック
+            CheckNameUploadOrRegist(idList);
+        }
+
+        /// <summary>
+        /// 名前が同一の行を連絡先テーブルから抽出、idをリスト化
+        /// </summary>
+        /// <param name="idList"></param>
+        private void SameNameList(List<string> idList)
+        {
+            foreach (DataRow dr in inquiryScreen.contacts.Rows)
             {
-                error = true;
-                telError.Text = "電話番号を15字以内で入力してください";
+                if (dr["name"].Equals(nameBox.Text))
+                {
+                    idList.Add(dr["id"].ToString());
+                }
             }
+        }
 
-            // アドレスエラー判定
-            // 文字数判定
-            if(!(addressBox.Text.Length >= 1 &&  addressBox.Text.Length <= 30))
+        /// <summary>
+        /// 更新か登録かによって処理をハンドルさせる
+        /// </summary>
+        /// <param name="idList"></param>
+        private void CheckNameUploadOrRegist(List<string> idList)
+        {
+            // 更新の場合
+            if (update)
+            {
+                CheckUpdateNameError(idList);
+            }
+            // 新規登録の場合
+            else
+            {
+                // 同じ名前のオブジェクトが存在している場合、重複エラー
+                if (idList.Any())
+                {
+                    DuplicationError();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 更新の場合の重複エラーの判断処理
+        /// </summary>
+        /// <param name="idList"></param>
+        private void CheckUpdateNameError(List<string> idList)
+        {
+            // idが別で同じ名前のオブジェクトが存在しているか
+            foreach (var item in idList)
+            {
+                // している場合重複エラー
+                if (!item.Equals(inquiryScreen.contact1.id))
+                {
+                    DuplicationError();
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 重複エラーの処理
+        /// </summary>
+        private void DuplicationError()
+        {
+            error = true;
+            nameError.Text = "この名前は既に登録されています";
+        }
+
+        private void CheckTelError()
+        {
+            if(telBox.Text.Length == 0) {
+                error = true;
+                telError.Text = "数字を15字以内で入力してください";
+            }
+        }
+
+        /// <summary>
+        /// アドレスのエラーの処理
+        /// アドレスには@が含まれている必要がある
+        /// </summary>
+        private void CheckAddressError()
+        {
+            if (addressBox.Text.Length == 0)
             {
                 error = true;
                 addressError.Text = "メールアドレスを30字以内で入力してください";
             }
-            // @がアドレス内に存在しているか
             else if (!(addressBox.Text.Contains("@")))
             {
                 error = true;
                 addressError.Text = "メールアドレスは@が含まれる必要があります";
             }
+        }
 
-            if(!(remarkBox.Text.Length <= 30))
-            {
-                error = true;
-                remarkError.Text = "備考は30字以内である必要があります";
-            }
+        /// <summary>
+        /// 登録・編集の処理
+        /// </summary>
+        private void RegistOrUpdateToDB()
+        {
+            // 入力情報をDBにMERGE INTO する
+            MergeIntoDB();
+            // dataGridViewを再表示
+            inquiryScreen.ScreenDisplay();
+            // このフォームを閉じる
+            this.Close();
+        }
 
-            // エラーが一つも起きていないときに限り下の処理を行う
-            // 新規登録、更新処理
-            if (!error)            
+        /// <summary>
+        /// 入力情報をDBにMERGE INTO する
+        /// </summary>
+        private void MergeIntoDB()
+        {
+            try
             {
-                try
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    using(SqlConnection conn = new SqlConnection(connectionString))
+                    using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        using(SqlCommand cmd = conn.CreateCommand())
-                        {
-                            // 入力情報をdbにmerge intoするためのクエリ文
-                            cmd.CommandText =   "MERGE INTO contacts AS target " +
-                                                "USING " +
-                                                    "(VALUES " +
-                                                        "(" + inquiryScreen.contact1.id + ",'" + nameBox.Text + "','" + telBox.Text + "','" + addressBox.Text + "','" + remarkBox.Text + "') " +
-                                                    ") AS source(id, name, tel, address, remark) " +
-                                                "ON target.id = source.id " +
-                                                "WHEN MATCHED THEN " +
-                                                    "UPDATE SET target.name = source.name, " +
-                                                    "target.tel = source.tel, " +
-                                                    "target.address = source.address, " +
-                                                    "target.remark = source.remark " +
-                                                "WHEN NOT MATCHED THEN " +
-                                                    "INSERT (name, tel, address, remark) " +
-                                                    "VALUES (source.name, source.tel, source.address, source.remark); ";
-                            // db接続
-                            conn.Open();
-                            // クエリ文実行
-                            cmd.ExecuteNonQuery();
-                        }
+                        // 入力情報をdbにmerge intoするためのクエリ文
+                        cmd.CommandText = "MERGE INTO contacts AS target " +
+                                            "USING " +
+                                                "(VALUES " +
+                                                    "(" + inquiryScreen.contact1.id + ",'" + nameBox.Text + "','" + telBox.Text + "','" + addressBox.Text + "','" + remarkBox.Text + "') " +
+                                                ") AS source(id, name, tel, address, remark) " +
+                                            "ON target.id = source.id " +
+                                            "WHEN MATCHED THEN " +
+                                                "UPDATE SET target.name = source.name, " +
+                                                "target.tel = source.tel, " +
+                                                "target.address = source.address, " +
+                                                "target.remark = source.remark " +
+                                            "WHEN NOT MATCHED THEN " +
+                                                "INSERT (name, tel, address, remark) " +
+                                                "VALUES (source.name, source.tel, source.address, source.remark); ";
+                        // db接続
+                        conn.Open();
+                        // クエリ文実行
+                        cmd.ExecuteNonQuery();
                     }
                 }
-                catch(Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                }
-
-                // dataGridViewを再表示
-                inquiryScreen.ScreenDisplay();
-
-                // このフォームを閉じる
-                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
         }
 
+        /// <summary>
+        /// ボタンとラベルの表示名を変更する
+        /// </summary>
+        /// <param name="buttonName">変更するボタンのnameプロパティ</param>
+        /// <param name="formName">変更するラベルのnameプロパティ</param>
         public void LabelChanger(string buttonName, string formName)
         {
             enter.Text = buttonName;
@@ -202,22 +295,23 @@ namespace contracts_manager_app
         /// </summary>
         public void ShowDialogPlus()
         {
-            // 諸々初期化
-            error = false;
-            nameError.Text = string.Empty;
-            telError.Text = string.Empty;
-            addressError.Text = string.Empty;
-            remarkError.Text = string.Empty;
+            // エラーの初期化
+            ErrorInitialization();
 
             // 新規登録の場合、テキストボックスも初期化
             if (!update)
             {
-                nameBox.Text = string.Empty;
-                telBox.Text = string.Empty;
-                addressBox.Text = string.Empty;
-                remarkBox.Text = string.Empty;
+                TextBoxInitialization();
             }
             ShowDialog();
+        }
+
+        private void TextBoxInitialization()
+        {
+            nameBox.Text = string.Empty;
+            telBox.Text = string.Empty;
+            addressBox.Text = string.Empty;
+            remarkBox.Text = string.Empty;
         }
     }
 }

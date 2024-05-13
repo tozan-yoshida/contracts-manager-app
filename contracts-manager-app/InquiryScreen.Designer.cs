@@ -137,11 +137,11 @@
             // showAllContacts
             // 
             showAllContacts.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            showAllContacts.Location = new Point(1201, 117);
+            showAllContacts.Location = new Point(1208, 117);
             showAllContacts.Name = "showAllContacts";
-            showAllContacts.Size = new Size(153, 31);
+            showAllContacts.Size = new Size(146, 31);
             showAllContacts.TabIndex = 7;
-            showAllContacts.Text = "全連絡先表示";
+            showAllContacts.Text = "再読込";
             showAllContacts.UseVisualStyleBackColor = true;
             showAllContacts.Click += showAllContacts_Click;
             // 

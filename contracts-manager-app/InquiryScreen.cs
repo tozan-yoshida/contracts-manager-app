@@ -288,7 +288,7 @@ namespace contracts_manager_app
             if (searchBox.Text.Length > 0)
             {
                 // データにフィルターをかける
-                // 条件はテキストボックスの文字列が名前、電話番号、メールアドレス、備考のいずれかの一部もしくは全部に一致
+                // 条件はテキストボックスの文字列が名前、備考のいずれかの一部もしくは全部に一致
                 contacts.DefaultView.RowFilter = @$"name LIKE '%{searchBox.Text}%'
                                                     OR remark LIKE'%{searchBox.Text}%' ";
             }

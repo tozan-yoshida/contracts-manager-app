@@ -41,7 +41,7 @@ namespace contracts_manager_app
                 using (StreamReader sr = new StreamReader(fileName, encoding, false))
                 {
                     // 1行目ではないかどうか
-                    // 1行目はヘッダーになっているため読み込んではいけない
+                    // 1行目はヘッダーになっているため書き出してはいけない
                     bool notFirst = false;
                     // 末尾まで繰り返す
                     ReadCsv(sr, notFirst);
@@ -59,7 +59,7 @@ namespace contracts_manager_app
         {
             while (!sr.EndOfStream)
             {
-                // CSVファイルの1行を読み込む
+                // CSVファイルを1行読み込む
                 string line = sr.ReadLine();
 
                 // 2行目以降の場合
