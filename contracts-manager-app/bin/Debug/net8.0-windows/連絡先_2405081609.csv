@@ -1,7 +1,0 @@
-id,name,tel,address,remark
-2,上書きテスト,9876543210,update@test,マージテスト1
-3,上書きテスト,9876543210,update@test,マージテスト1
-4,更新テスト,111111111,update@test,変更テスト
-5,新参者,5555555555,shinzan@test,新規登録テスト
-6,ニュービー,456456456,newbie@test,新規登録テスト第2弾
-7,吉田,2581473696,yoshida@tozan.co.jp,
