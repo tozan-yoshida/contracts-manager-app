@@ -31,6 +31,11 @@ namespace contracts_manager_app
         private int addressIndex;   // メールアドレス
         private int remarkIndex;    // 備考
 
+        // ボタン列
+        private DataGridViewButtonColumn updateButtonColumn;
+        private DataGridViewButtonColumn deleteButtonColumn;
+
+
         public DatabaseHandler databaseHandler { get; set; }
 
         public InquiryScreen()
@@ -44,28 +49,28 @@ namespace contracts_manager_app
             dataGridView1.DataSource = contacts;
 
             // DataGridViewButtonColumnの作成
-            DataGridViewButtonColumn updateButton = new DataGridViewButtonColumn();
-            DataGridViewButtonColumn deleteButton = new DataGridViewButtonColumn();
+            updateButtonColumn = new DataGridViewButtonColumn();
+            deleteButtonColumn = new DataGridViewButtonColumn();
 
             // 列の名前を設定
-            updateButton.Name = "編集";
-            deleteButton.Name = "削除";
+            updateButtonColumn.Name = "編集";
+            deleteButtonColumn.Name = "削除";
 
             // すべてのボタンに"編集"、"削除"と表示する
-            updateButton.UseColumnTextForButtonValue = true;
-            deleteButton.UseColumnTextForButtonValue = true;
-            updateButton.Text = "編集";
-            deleteButton.Text = "削除";
+            updateButtonColumn.UseColumnTextForButtonValue = true;
+            deleteButtonColumn.UseColumnTextForButtonValue = true;
+            updateButtonColumn.Text = "編集";
+            deleteButtonColumn.Text = "削除";
 
             // ボタンの背景色変更
-            updateButton.FlatStyle = FlatStyle.Flat;
-            deleteButton.FlatStyle = FlatStyle.Flat;
-            updateButton.DefaultCellStyle.BackColor = Color.LightGreen;
-            deleteButton.DefaultCellStyle.BackColor = Color.Coral;
+            updateButtonColumn.FlatStyle = FlatStyle.Flat;
+            deleteButtonColumn.FlatStyle = FlatStyle.Flat;
+            updateButtonColumn.DefaultCellStyle.BackColor = Color.LightGreen;
+            deleteButtonColumn.DefaultCellStyle.BackColor = Color.Coral;
 
             // DataGridViewに追加する
-            dataGridView1.Columns.Add(updateButton);
-            dataGridView1.Columns.Add(deleteButton);            
+            dataGridView1.Columns.Add(updateButtonColumn);
+            dataGridView1.Columns.Add(deleteButtonColumn);
             contacts.Columns.Add("id", typeof(int));
             contacts.Columns.Add("name", typeof(string));
             contacts.Columns.Add("tel", typeof(string));
@@ -173,7 +178,7 @@ namespace contracts_manager_app
             // "削除"ボタンを押したときの処理
             else if (dgv.Columns[e.ColumnIndex].Name == "削除")
             {
-                DeleteClick(e);                
+                DeleteClick(e);
             }
         }
 
@@ -206,7 +211,7 @@ namespace contracts_manager_app
             contact1.tel = dataGridView1.Rows[e.RowIndex].Cells[telIndex].Value.ToString();
             contact1.address = dataGridView1.Rows[e.RowIndex].Cells[addressIndex].Value.ToString();
             // 備考は何も入力されていない場合があるためif文で判断
-            if (dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value != null) 
+            if (dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value != null)
                 contact1.remark = dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value.ToString();
         }
 
@@ -223,7 +228,7 @@ namespace contracts_manager_app
             // OKを押したときの処理
             if (result == DialogResult.OK)
             {
-               PushDeleteOk(e);
+                PushDeleteOk(e);
             }
         }
 
@@ -504,10 +509,10 @@ namespace contracts_manager_app
             databaseHandler.MergeIntoContact(contact);
         }
 
-    /// <summary>
-    /// 再読込ボタン押下時のイベント
-    /// </summary>
-    private void showAllContacts_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 再読込ボタン押下時のイベント
+        /// </summary>
+        private void showAllContacts_Click(object sender, EventArgs e)
         {
             ScreenDisplay();
             searchBox.Text = "";
