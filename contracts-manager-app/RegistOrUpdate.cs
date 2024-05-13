@@ -7,10 +7,13 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Xml.Linq;
 
 namespace contracts_manager_app
 {
@@ -29,7 +32,7 @@ namespace contracts_manager_app
         public RegistOrUpdate(InquiryScreen inquiryScreen)
         {
             this.inquiryScreen = inquiryScreen;
-            this.databaseHandler = inquiryScreen.databaseHandler;
+            databaseHandler = inquiryScreen.databaseHandler;
             InitializeComponent();
         }
 
@@ -219,7 +222,7 @@ namespace contracts_manager_app
         private void RegistOrUpdateToDB()
         {
             // 入力情報をDBにMERGE INTO する
-            MergeIntoDB();
+            databaseHandler.MergeIntoContact(toContact());
             // dataGridViewを再表示
             inquiryScreen.ScreenDisplay();
             // このフォームを閉じる
@@ -227,27 +230,18 @@ namespace contracts_manager_app
         }
 
         /// <summary>
-        /// 入力情報をDBにMERGE INTO する
+        /// 入力情報をContactクラスに格納する
         /// </summary>
-        private void MergeIntoDB()
+        /// <returns>入力情報を格納したContactクラス</returns>
+        private Contact toContact()
         {
-            // 入力情報をdbにmerge intoするためのクエリ文
-            string cmdTxt =              $@"MERGE INTO contacts AS target
-                                            USING
-                                                (VALUES 
-                                                    ({inquiryScreen.contact1.id},'{nameBox.Text}','{telBox.Text}','{addressBox.Text}','{remarkBox.Text}')
-                                                ) AS source(id, name, tel, address, remark)
-                                            ON target.id = source.id 
-                                            WHEN MATCHED THEN 
-                                                UPDATE SET target.name = source.name, 
-                                                target.tel = source.tel, 
-                                                target.address = source.address, 
-                                                target.remark = source.remark 
-                                            WHEN NOT MATCHED THEN 
-                                                INSERT (name, tel, address, remark)
-                                                VALUES (source.name, source.tel, source.address, source.remark); ";
-
-            databaseHandler.DatabaseHandleExecuteNonQuery(cmdTxt);
+            string id = inquiryScreen.contact1.id;
+            string name = nameBox.Text;
+            string tel = telBox.Text;
+            string address = addressBox.Text;
+            string remark = remarkBox.Text;
+            Contact contact = new Contact(id, name, tel, address, remark);
+            return contact;
         }
 
         /// <summary>

@@ -243,7 +243,6 @@ namespace contracts_manager_app
 
         #endregion
 
-        private Button registOrUpdate;
         private TextBox nameBox;
         private TextBox addressBox;
         private TextBox telBox;
