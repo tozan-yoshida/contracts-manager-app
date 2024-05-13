@@ -16,8 +16,10 @@ namespace contracts_manager_app
         // データベースとの接続文字列作成
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
+        // 登録・更新画面のフォーム
         private RegistOrUpdate registOrUpdateScreen;
 
+        // 連絡先の格納クラス
         public Contact contact1 { get; set; }
 
         // それぞれの情報が何列目にあるか
@@ -84,7 +86,7 @@ namespace contracts_manager_app
             dataGridView1.Columns[deleteIndex].FillWeight = 1.0f;
             dataGridView1.Columns[idIndex].FillWeight = 1.0f;
             dataGridView1.Columns[nameIndex].FillWeight = 4.0f;
-            dataGridView1.Columns[telIndex].FillWeight = 2.6f;
+            dataGridView1.Columns[telIndex].FillWeight = 2.8f;
             dataGridView1.Columns[addressIndex].FillWeight = 5.0f;
             dataGridView1.Columns[remarkIndex].FillWeight = 7.5f;
 
@@ -131,7 +133,7 @@ namespace contracts_manager_app
             // 行フィルターをオフにする
             contacts.DefaultView.RowFilter = null;
 
-            // 
+            // DB上からデータテーブルにデータを渡す
             databaseHandler.DataAdaptDataTable("SELECT * FROM contacts", contacts);
 
             // dataGridViewの初期表示でセルを選択させない
@@ -233,10 +235,9 @@ namespace contracts_manager_app
         {
             // 削除したい行のidを取得
             contact1.id = dataGridView1.Rows[e.RowIndex].Cells[idIndex].Value.ToString();
-            // クエリ文作成
-            string cmdTxt = $@"DELETE FROM contacts WHERE id = {contact1.id}";
-            // クエリ文実行
-            databaseHandler.DatabaseHandleExecuteNonQuery(cmdTxt);
+
+            // Deleteクエリ文作成、実行
+            databaseHandler.DeleteContact(contact1.id);
 
             // 画面の再表示
             ScreenDisplay();
@@ -255,6 +256,9 @@ namespace contracts_manager_app
                 contacts.DefaultView.RowFilter = @$"name LIKE '%{searchBox.Text}%'
                                                     OR remark LIKE'%{searchBox.Text}%' ";
             }
+            // dataGridViewの初期表示でセルを選択させない
+            dataGridView1.CurrentCell = null;
+            dataGridView1.ClearSelection();
         }
 
         /// <summary>
@@ -460,7 +464,7 @@ namespace contracts_manager_app
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                MessageBox.Show("エラー: " + ex.Message);
             }
         }
 
@@ -494,50 +498,19 @@ namespace contracts_manager_app
             // 読み込んだ1行をカンマ事に分けて配列に格納する
             string[] values = line.Split(',');
 
-            // 配列からリストに格納する
-            List<string> lists = new List<string>();
-            lists.AddRange(values);
-
-            // リストからDBにインポート
-            importDB(lists);
+            // 配列からコンタクトクラスに格納する
+            Contact contact = new Contact(values[0], values[1], values[2], values[3], values[4]);
+            // コンタクトクラスをDBにインポート
+            databaseHandler.MergeIntoContact(contact);
         }
-
-
-
-        /// <summary>
-        /// データベースにインポートする際のクエリの処理
-        /// </summary>
-        /// <param name="lists"></param>
-        private void importDB(List<string> lists)
-        {
-            // クエリ文作成
-            string cmdtxt = @$"SET IDENTITY_INSERT contacts ON 
-                                    MERGE INTO contacts AS target 
-                                    USING 
-                                        (VALUES ({lists[0]},'{lists[1]}','{lists[2]}','{lists[3]}','{lists[4]}')
-                                        )AS source(id, name, tel, address, remark) 
-                                    ON target.id = source.id 
-                                    WHEN MATCHED THEN 
-                                        UPDATE SET target.name = source.name, 
-                                        target.tel = source.tel, 
-                                        target.address = source.address, 
-                                        target.remark = source.remark 
-                                    WHEN NOT MATCHED THEN 
-                                        INSERT(id, name, tel, address, remark) 
-                                        VALUES(source.id, source.name, source.tel, source.address, source.remark); 
-                                  SET IDENTITY_INSERT contacts OFF";
-
-            // クエリ文実行
-            databaseHandler.DatabaseHandleExecuteNonQuery(cmdtxt);
-        }
-    
 
     /// <summary>
-    /// 全連絡先表示ボタン押下時のイベント
+    /// 再読込ボタン押下時のイベント
     /// </summary>
     private void showAllContacts_Click(object sender, EventArgs e)
         {
             ScreenDisplay();
+            searchBox.Text = "";
         }
     }
 }
