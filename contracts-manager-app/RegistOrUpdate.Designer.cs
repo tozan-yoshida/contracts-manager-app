@@ -274,6 +274,7 @@ namespace contracts_manager_app
             Name = "RegistOrUpdate";
             StartPosition = FormStartPosition.CenterParent;
             Text = "連絡先管理アプリ";
+            Load += RegistOrUpdate_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();

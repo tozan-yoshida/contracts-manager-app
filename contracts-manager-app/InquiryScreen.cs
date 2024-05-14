@@ -546,12 +546,12 @@ namespace contracts_manager_app
             if (dgv.Columns[e.ColumnIndex].Name == "ƒCƒ[ƒW" &&
                 e.RowIndex >= 0)
             {
-                Debug.WriteLine("test");
-                if (!(dgv["imagePass", e.RowIndex].Value is System.DBNull))
+                if ((string)dgv["imagePass", e.RowIndex].Value != "")
                 {
                     e.Value = new Bitmap(@$"{(string)dgv["imagePass", e.RowIndex].Value}");
                     e.FormattingApplied = true;
                 }
+
             }
         }
     }

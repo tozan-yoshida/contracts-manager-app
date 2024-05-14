@@ -46,7 +46,8 @@ namespace contracts_manager_app
             string tel = contact.tel.Replace("'", "''");
             string address = contact.address.Replace("'", "''");
             string remark = contact.remark.Replace("'", "''");
-            Contact aContact = new Contact(id, name, tel, address, remark);
+            string imagePass = contact.imagePass.Replace("'", "''");
+            Contact aContact = new Contact(id, name, tel, address, remark, imagePass);
             return aContact;
         }
 
@@ -60,17 +61,18 @@ namespace contracts_manager_app
             string cmdTxt = $@"MERGE INTO contacts AS target
                                             USING
                                                 (VALUES 
-                                                    ({aContact.id},'{aContact.name}','{aContact.tel}','{aContact.address}','{aContact.remark}')
-                                                ) AS source(id, name, tel, address, remark)
+                                                    ({aContact.id},'{aContact.name}','{aContact.tel}','{aContact.address}','{aContact.remark}','{aContact.imagePass}')
+                                                ) AS source(id, name, tel, address, remark, imagePass)
                                             ON target.id = source.id 
                                             WHEN MATCHED THEN 
                                                 UPDATE SET target.name = source.name, 
                                                 target.tel = source.tel, 
                                                 target.address = source.address, 
-                                                target.remark = source.remark 
+                                                target.remark = source.remark,
+                                                target.imagePass = source.imagePass
                                             WHEN NOT MATCHED THEN 
-                                                INSERT (name, tel, address, remark)
-                                                VALUES (source.name, source.tel, source.address, source.remark); ";
+                                                INSERT (name, tel, address, remark, imagePass)
+                                                VALUES (source.name, source.tel, source.address, source.remark, source.imagePass); ";
             return cmdTxt;
         }
 

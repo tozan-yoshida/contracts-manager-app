@@ -18,6 +18,7 @@ namespace contracts_manager_app
         public string tel {  get; set; }
         public string address {  get; set; }
         public string remark {  get; set; }
+        public string imagePass {  get; set; }
 
         public Contact(string id, string name, string tel, string address, string remark)
         {
@@ -26,6 +27,17 @@ namespace contracts_manager_app
             this.tel = tel;
             this.address = address;
             this.remark = remark;
+            imagePass = "";
+        }
+
+        public Contact(string id, string name, string tel, string address, string remark, string imagePass)
+        {
+            this.id = id;
+            this.name = name;
+            this.tel = tel;
+            this.address = address;
+            this.remark = remark;
+            this.imagePass = imagePass;
         }
 
     }
