@@ -25,15 +25,19 @@ namespace contracts_manager_app
         // それぞれの情報が何列目にあるか
         private int updateIndex;    // 編集ボタン
         private int deleteIndex;    // 削除ボタン
+        private int imageIndex;     // 画像
         private int idIndex;        // id
         private int nameIndex;      // 名前
         private int telIndex;       // 電話番号
         private int addressIndex;   // メールアドレス
         private int remarkIndex;    // 備考
+        private int imagePassIndex; // 画像のパス
 
         // ボタン列
         private DataGridViewButtonColumn updateButtonColumn;
         private DataGridViewButtonColumn deleteButtonColumn;
+        // アイコン画像列
+        private DataGridViewImageColumn imageColumn;
 
 
         public DatabaseHandler databaseHandler { get; set; }
@@ -52,9 +56,13 @@ namespace contracts_manager_app
             updateButtonColumn = new DataGridViewButtonColumn();
             deleteButtonColumn = new DataGridViewButtonColumn();
 
+            // DataGridViewImageColumnの作成
+            imageColumn = new DataGridViewImageColumn();
+
             // 列の名前を設定
             updateButtonColumn.Name = "編集";
             deleteButtonColumn.Name = "削除";
+            imageColumn.Name = "イメージ";
 
             // すべてのボタンに"編集"、"削除"と表示する
             updateButtonColumn.UseColumnTextForButtonValue = true;
@@ -68,36 +76,49 @@ namespace contracts_manager_app
             updateButtonColumn.DefaultCellStyle.BackColor = Color.LightGreen;
             deleteButtonColumn.DefaultCellStyle.BackColor = Color.Coral;
 
+            // デフォルトでセルに表示されるイメージを設定する
+            imageColumn.Image = new Bitmap(@$"C:\Users\toru_yoshida\source\repos\contracts-manager-app\アイコン置き場\kkrn_icon_user_1.png");
+
+            // イメージを縦横の比率を維持して拡大、縮小表示する
+            imageColumn.ImageLayout = DataGridViewImageCellLayout.Zoom;
+
             // DataGridViewに追加する
             dataGridView1.Columns.Add(updateButtonColumn);
             dataGridView1.Columns.Add(deleteButtonColumn);
+            dataGridView1.Columns.Add(imageColumn);
             contacts.Columns.Add("id", typeof(int));
             contacts.Columns.Add("name", typeof(string));
             contacts.Columns.Add("tel", typeof(string));
             contacts.Columns.Add("address", typeof(string));
             contacts.Columns.Add("remark", typeof(string));
+            contacts.Columns.Add("imagePass", typeof(string));
 
             // 情報がそれぞれ dataGridView の何列目にあるか
             updateIndex = dataGridView1.Columns["編集"].Index;
             deleteIndex = dataGridView1.Columns["削除"].Index;
+            imageIndex = dataGridView1.Columns["イメージ"].Index;
             idIndex = dataGridView1.Columns["id"].Index;
             nameIndex = dataGridView1.Columns["name"].Index;
             telIndex = dataGridView1.Columns["tel"].Index;
             addressIndex = dataGridView1.Columns["address"].Index;
             remarkIndex = dataGridView1.Columns["remark"].Index;
+            imagePassIndex = dataGridView1.Columns["imagePass"].Index;
 
             // dataGridViewのレイアウト用
             dataGridView1.Columns[updateIndex].FillWeight = 1.0f;
             dataGridView1.Columns[deleteIndex].FillWeight = 1.0f;
+            dataGridView1.Columns[imageIndex].FillWeight = 1.0f;
             dataGridView1.Columns[idIndex].FillWeight = 1.0f;
             dataGridView1.Columns[nameIndex].FillWeight = 4.0f;
             dataGridView1.Columns[telIndex].FillWeight = 2.8f;
             dataGridView1.Columns[addressIndex].FillWeight = 5.0f;
             dataGridView1.Columns[remarkIndex].FillWeight = 7.5f;
 
+
             // カラム名を指定
             dataGridView1.Columns[updateIndex].HeaderText = "";
             dataGridView1.Columns[deleteIndex].HeaderText = "";
+            dataGridView1.Columns[imageIndex].HeaderText = "";
             dataGridView1.Columns[nameIndex].HeaderText = "名前";
             dataGridView1.Columns[telIndex].HeaderText = "電話番号";
             dataGridView1.Columns[addressIndex].HeaderText = "メールアドレス";
@@ -105,6 +126,7 @@ namespace contracts_manager_app
 
             // idの列を非表示にする
             dataGridView1.Columns[idIndex].Visible = false;
+            dataGridView1.Columns[imagePassIndex].Visible = false;
 
             // データベースハンドラのインスタンス作成
             databaseHandler = new DatabaseHandler(connectionString);
@@ -145,6 +167,9 @@ namespace contracts_manager_app
             dataGridView1.CurrentCell = null;
             dataGridView1.ClearSelection();
 
+            // アイコン画像を表示する
+            ImageView();
+
         }
 
         /// <summary>
@@ -154,8 +179,9 @@ namespace contracts_manager_app
         {
             contact1.id = "0";
             registOrUpdateScreen.update = false;
-            // ボタンの表示を"登録"に変更
-            registOrUpdateScreen.LabelChanger("登録", "新規追加画面");
+            // ボタンの表示を"登録",フォーム名を"新規追加画面"に変更
+            // アイコンのパスは空
+            registOrUpdateScreen.LabelChanger("登録", "新規追加画面", "");
             // 登録画面の表示
             registOrUpdateScreen.ShowDialogPlus();
         }
@@ -187,11 +213,12 @@ namespace contracts_manager_app
         /// </summary>
         private void UpdateClick(DataGridViewCellEventArgs e)
         {
-            // 編集、更新画面のボタンの表記を"更新"に変更
-            registOrUpdateScreen.LabelChanger("更新", "編集画面");
-            registOrUpdateScreen.update = true;
             // 押された"編集"ボタンの行の情報取得、格納
             RowInfoStore(e);
+
+            // 編集、更新画面のボタンの表記を"更新"に変更
+            registOrUpdateScreen.LabelChanger("更新", "編集画面", contact1.imagePass);
+            registOrUpdateScreen.update = true;
 
             // 遷移先の画面のテキストボックスに自動的に入力
             registOrUpdateScreen.TextBoxRegister(contact1);
@@ -210,6 +237,7 @@ namespace contracts_manager_app
             contact1.name = dataGridView1.Rows[e.RowIndex].Cells[nameIndex].Value.ToString();
             contact1.tel = dataGridView1.Rows[e.RowIndex].Cells[telIndex].Value.ToString();
             contact1.address = dataGridView1.Rows[e.RowIndex].Cells[addressIndex].Value.ToString();
+            contact1.imagePass = dataGridView1.Rows[e.RowIndex].Cells[imagePassIndex].Value.ToString();
             // 備考は何も入力されていない場合があるためif文で判断
             if (dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value != null)
                 contact1.remark = dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value.ToString();
@@ -291,7 +319,7 @@ namespace contracts_manager_app
         private void ExportEvent()
         {
             // csvファイルのパスをフォルダを指定して取得
-            FileDialogUse fileDialogUse = new FileDialogUse(new SaveFileDialog());
+            FileDialogUse fileDialogUse = new FileDialogUse(new SaveFileDialog(), "csv");
 
             // CSVファイルに書き込むときに使うEncoding
             System.Text.Encoding encoding = System.Text.Encoding.GetEncoding("Shift_JIS");
@@ -437,7 +465,7 @@ namespace contracts_manager_app
             // CSVファイルを読み取る時に使うEncoding
             System.Text.Encoding encoding = System.Text.Encoding.GetEncoding("Shift_JIS");
             // ファイルダイアログを使用する際のインスタンス
-            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog());
+            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog(), "csv");
 
             // ダイアログを表示、OKボタンが押されたならインポートの処理を行う
             if (fileDialogUse.DialogUse())
@@ -504,7 +532,7 @@ namespace contracts_manager_app
             string[] values = line.Split(',');
 
             // 配列からコンタクトクラスに格納する
-            Contact contact = new Contact(values[0], values[1], values[2], values[3], values[4]);
+            Contact contact = new Contact(values[0], values[1], values[2], values[3], values[4], values[5]);
             // コンタクトクラスをDBにインポート
             databaseHandler.MergeIntoContact(contact);
         }
@@ -516,6 +544,32 @@ namespace contracts_manager_app
         {
             ScreenDisplay();
             searchBox.Text = "";
+        }
+
+      /// <summary>
+      /// すべての行に対して画像のパスによって画像を表示させる
+      /// </summary>
+        private void ImageView()
+        {
+            try
+            {
+                foreach (var row in dataGridView1.Rows.Cast<DataGridViewRow>())
+                {
+                    // 画像パス(画像が存在しない場合、空文字が入力される)
+                    string imagePass = (string)row.Cells[imagePassIndex].Value;
+
+                    // 画像が存在する場合
+                    if (imagePass != "")
+                    {
+                        // パスに従った画像をアイコンの列に代入する
+                        row.Cells[imageIndex].Value = new Bitmap(@$"{imagePass}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

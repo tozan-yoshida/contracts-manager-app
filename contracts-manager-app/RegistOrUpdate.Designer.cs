@@ -47,47 +47,51 @@ namespace contracts_manager_app
             label5 = new Label();
             label6 = new Label();
             label7 = new Label();
+            pictureBox1 = new PictureBox();
+            fileChoice = new Button();
+            deleteImage = new CheckBox();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
             // nameBox
             // 
-            nameBox.Location = new Point(369, 88);
+            nameBox.Location = new Point(679, 65);
             nameBox.Name = "nameBox";
-            nameBox.Size = new Size(391, 31);
+            nameBox.Size = new Size(342, 31);
             nameBox.TabIndex = 1;
             // 
             // addressBox
             // 
-            addressBox.Location = new Point(369, 212);
+            addressBox.Location = new Point(679, 189);
             addressBox.MaxLength = 30;
             addressBox.Name = "addressBox";
-            addressBox.Size = new Size(391, 31);
+            addressBox.Size = new Size(342, 31);
             addressBox.TabIndex = 2;
             // 
             // telBox
             // 
             telBox.ImeMode = ImeMode.Disable;
-            telBox.Location = new Point(369, 150);
+            telBox.Location = new Point(679, 127);
             telBox.MaxLength = 15;
             telBox.Name = "telBox";
             telBox.ShortcutsEnabled = false;
-            telBox.Size = new Size(391, 31);
+            telBox.Size = new Size(342, 31);
             telBox.TabIndex = 3;
             telBox.KeyPress += telBox_KeyPress;
             // 
             // remarkBox
             // 
-            remarkBox.Location = new Point(369, 274);
+            remarkBox.Location = new Point(679, 251);
             remarkBox.MaxLength = 30;
             remarkBox.Multiline = true;
             remarkBox.Name = "remarkBox";
-            remarkBox.Size = new Size(391, 97);
+            remarkBox.Size = new Size(342, 97);
             remarkBox.TabIndex = 4;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(70, 88);
+            label1.Location = new Point(380, 65);
             label1.Name = "label1";
             label1.Size = new Size(48, 25);
             label1.TabIndex = 5;
@@ -96,7 +100,7 @@ namespace contracts_manager_app
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(70, 150);
+            label2.Location = new Point(380, 127);
             label2.Name = "label2";
             label2.Size = new Size(204, 25);
             label2.TabIndex = 6;
@@ -105,7 +109,7 @@ namespace contracts_manager_app
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(70, 271);
+            label3.Location = new Point(380, 248);
             label3.Name = "label3";
             label3.Size = new Size(132, 25);
             label3.TabIndex = 7;
@@ -114,7 +118,7 @@ namespace contracts_manager_app
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(70, 212);
+            label4.Location = new Point(380, 189);
             label4.Name = "label4";
             label4.Size = new Size(266, 25);
             label4.TabIndex = 8;
@@ -124,7 +128,7 @@ namespace contracts_manager_app
             // 
             nameError.AutoSize = true;
             nameError.ForeColor = Color.Crimson;
-            nameError.Location = new Point(369, 122);
+            nameError.Location = new Point(679, 99);
             nameError.Name = "nameError";
             nameError.Size = new Size(22, 25);
             nameError.TabIndex = 9;
@@ -134,7 +138,7 @@ namespace contracts_manager_app
             // 
             telError.AutoSize = true;
             telError.ForeColor = Color.Crimson;
-            telError.Location = new Point(369, 184);
+            telError.Location = new Point(679, 161);
             telError.Name = "telError";
             telError.Size = new Size(22, 25);
             telError.TabIndex = 13;
@@ -144,7 +148,7 @@ namespace contracts_manager_app
             // 
             remarkError.AutoSize = true;
             remarkError.ForeColor = Color.Crimson;
-            remarkError.Location = new Point(369, 374);
+            remarkError.Location = new Point(679, 351);
             remarkError.Name = "remarkError";
             remarkError.Size = new Size(22, 25);
             remarkError.TabIndex = 14;
@@ -154,7 +158,7 @@ namespace contracts_manager_app
             // 
             addressError.AutoSize = true;
             addressError.ForeColor = Color.Crimson;
-            addressError.Location = new Point(369, 246);
+            addressError.Location = new Point(679, 223);
             addressError.Name = "addressError";
             addressError.Size = new Size(22, 25);
             addressError.TabIndex = 15;
@@ -174,7 +178,7 @@ namespace contracts_manager_app
             // enter
             // 
             enter.BackColor = SystemColors.GradientActiveCaption;
-            enter.Location = new Point(369, 402);
+            enter.Location = new Point(437, 381);
             enter.Name = "enter";
             enter.Size = new Size(173, 57);
             enter.TabIndex = 17;
@@ -186,7 +190,7 @@ namespace contracts_manager_app
             // 
             label5.AutoSize = true;
             label5.ForeColor = Color.Crimson;
-            label5.Location = new Point(115, 88);
+            label5.Location = new Point(425, 65);
             label5.Name = "label5";
             label5.Size = new Size(30, 25);
             label5.TabIndex = 18;
@@ -196,7 +200,7 @@ namespace contracts_manager_app
             // 
             label6.AutoSize = true;
             label6.ForeColor = Color.Crimson;
-            label6.Location = new Point(270, 150);
+            label6.Location = new Point(580, 127);
             label6.Name = "label6";
             label6.Size = new Size(30, 25);
             label6.TabIndex = 19;
@@ -206,17 +210,50 @@ namespace contracts_manager_app
             // 
             label7.AutoSize = true;
             label7.ForeColor = Color.Crimson;
-            label7.Location = new Point(333, 212);
+            label7.Location = new Point(643, 189);
             label7.Name = "label7";
             label7.Size = new Size(30, 25);
             label7.TabIndex = 20;
             label7.Text = "※";
             // 
+            // pictureBox1
+            // 
+            pictureBox1.Image = Properties.Resources.kkrn_icon_user_1;
+            pictureBox1.Location = new Point(27, 65);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(269, 183);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 21;
+            pictureBox1.TabStop = false;
+            // 
+            // fileChoice
+            // 
+            fileChoice.Location = new Point(96, 267);
+            fileChoice.Name = "fileChoice";
+            fileChoice.Size = new Size(128, 45);
+            fileChoice.TabIndex = 22;
+            fileChoice.Text = "ファイル選択";
+            fileChoice.UseVisualStyleBackColor = true;
+            fileChoice.Click += fileChoice_Click;
+            // 
+            // deleteImage
+            // 
+            deleteImage.AutoSize = true;
+            deleteImage.Location = new Point(105, 318);
+            deleteImage.Name = "deleteImage";
+            deleteImage.Size = new Size(110, 29);
+            deleteImage.TabIndex = 23;
+            deleteImage.Text = "画像削除";
+            deleteImage.UseVisualStyleBackColor = true;
+            // 
             // RegistOrUpdate
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(856, 531);
+            ClientSize = new Size(1048, 462);
+            Controls.Add(deleteImage);
+            Controls.Add(fileChoice);
+            Controls.Add(pictureBox1);
             Controls.Add(label7);
             Controls.Add(label6);
             Controls.Add(label5);
@@ -237,6 +274,8 @@ namespace contracts_manager_app
             Name = "RegistOrUpdate";
             StartPosition = FormStartPosition.CenterParent;
             Text = "連絡先管理アプリ";
+            Load += RegistOrUpdate_Load;
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -260,5 +299,8 @@ namespace contracts_manager_app
         private Label label5;
         private Label label6;
         private Label label7;
+        private PictureBox pictureBox1;
+        private Button fileChoice;
+        private CheckBox deleteImage;
     }
 }

@@ -21,11 +21,12 @@ namespace contracts_manager_app
     public partial class RegistOrUpdate : Form
     {
 
-        
+
         public bool update { get; set; } = false;
         private bool error { get; set; } = false;
         private InquiryScreen inquiryScreen;
         private DatabaseHandler databaseHandler;
+        private string imagePass;
 
 
 
@@ -41,14 +42,19 @@ namespace contracts_manager_app
         {
             // エラーの初期化
             ErrorInitialization();
+
             // エラー判定
             CheckError();
 
             // エラーが一つも起きていないときに限り下の処理を行う
             // 新規登録、更新処理
-            if (!error)            
+            if (!error)
             {
-                RegistOrUpdateToDB();
+                bool addImageFile = CheckCanAddImageFile();
+                Contact contact = toContact(addImageFile);
+                RegistOrUpdateToDB(contact);
+                imagePass = "";
+                pictureBox1.Image = Properties.Resources.kkrn_icon_user_1;
             }
         }
 
@@ -180,7 +186,8 @@ namespace contracts_manager_app
 
         private void CheckTelError()
         {
-            if(telBox.Text.Length == 0) {
+            if (telBox.Text.Length == 0)
+            {
                 error = true;
                 telError.Text = "数字を15字以内で入力してください";
             }
@@ -209,20 +216,32 @@ namespace contracts_manager_app
         /// </summary>
         private void CheckRemarkError()
         {
-            if(remarkBox.Text.Length > 30)
+            if (remarkBox.Text.Length > 30)
             {
                 error = true;
                 remarkError.Text = "備考は30字以内で入力してください";
             }
         }
 
+        private bool CheckCanAddImageFile()
+        {
+            if (imagePass != null && !deleteImage.Checked)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// 登録・編集の処理
         /// </summary>
-        private void RegistOrUpdateToDB()
+        private void RegistOrUpdateToDB(Contact contact)
         {
             // 入力情報をDBにMERGE INTO する
-            databaseHandler.MergeIntoContact(toContact());
+            databaseHandler.MergeIntoContact(contact);
             // dataGridViewを再表示
             inquiryScreen.ScreenDisplay();
             // このフォームを閉じる
@@ -233,14 +252,22 @@ namespace contracts_manager_app
         /// 入力情報をContactクラスに格納する
         /// </summary>
         /// <returns>入力情報を格納したContactクラス</returns>
-        private Contact toContact()
+        private Contact toContact(bool isImage)
         {
             string id = inquiryScreen.contact1.id;
             string name = nameBox.Text;
             string tel = telBox.Text;
             string address = addressBox.Text;
             string remark = remarkBox.Text;
-            Contact contact = new Contact(id, name, tel, address, remark);
+            Contact contact;
+            if (isImage)
+            {
+                contact = new Contact(id, name, tel, address, remark, imagePass);
+            }
+            else
+            {
+                contact = new Contact(id, name, tel, address, remark);
+            }
             return contact;
         }
 
@@ -249,10 +276,11 @@ namespace contracts_manager_app
         /// </summary>
         /// <param name="buttonName">変更するボタンのnameプロパティ</param>
         /// <param name="formName">変更するラベルのnameプロパティ</param>
-        public void LabelChanger(string buttonName, string formName)
+        public void LabelChanger(string buttonName, string formName, string imagePass)
         {
             enter.Text = buttonName;
             formInfo.Text = formName;
+            this.imagePass = imagePass;
         }
 
         /// <summary>
@@ -268,6 +296,7 @@ namespace contracts_manager_app
             telBox.Text = contact.tel;
             addressBox.Text = contact.address;
             remarkBox.Text = contact.remark;
+            
         }
 
 
@@ -280,7 +309,7 @@ namespace contracts_manager_app
             if (e.KeyChar == '\b') return;
 
             // 数値0～9以外が押されたときはイベントをキャンセルする
-            if(e.KeyChar < '0' || '9' < e.KeyChar) e.Handled  = true;
+            if (e.KeyChar < '0' || '9' < e.KeyChar) e.Handled = true;
         }
 
         /// <summary>
@@ -308,6 +337,45 @@ namespace contracts_manager_app
             telBox.Text = string.Empty;
             addressBox.Text = string.Empty;
             remarkBox.Text = string.Empty;
+        }
+
+        /// <summary>
+        /// ファイル選択ボタン押下時の処理
+        /// </summary>
+        private void fileChoice_Click(object sender, EventArgs e)
+        {
+            // ファイルダイアログを使用する際のインスタンス
+            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog(), "picture");
+
+            // ダイアログを表示、OKボタンが押されたなら画像表示の処理を行う
+            if (fileDialogUse.DialogUse())
+            {
+                FileChoicePushOK(fileDialogUse.fileDialog.FileName);
+            }
+        }
+
+        /// <summary>
+        /// ファイル選択ボタン押下時のファイルダイアログにて
+        /// OKボタン押下時の処理
+        /// </summary>
+        /// <param name="fileName"></param>
+        private void FileChoicePushOK(string fileName)
+        {
+            imagePass = fileName;
+            pictureBox1.Image = Image.FromFile(fileName);
+        }
+
+        private void RegistOrUpdate_Load(object sender, EventArgs e)
+        {
+            deleteImage.Checked = false;
+            if (imagePass != "")
+            {
+                pictureBox1.Image = new Bitmap(imagePass);
+            }
+            else
+            {
+                pictureBox1.Image = Properties.Resources.kkrn_icon_user_1;
+            }
         }
     }
 }
