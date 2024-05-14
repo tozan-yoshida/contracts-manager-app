@@ -25,6 +25,7 @@ namespace contracts_manager_app
         // それぞれの情報が何列目にあるか
         private int updateIndex;    // 編集ボタン
         private int deleteIndex;    // 削除ボタン
+        private int imageIndex;     // 画像
         private int idIndex;        // id
         private int nameIndex;      // 名前
         private int telIndex;       // 電話番号
@@ -34,6 +35,8 @@ namespace contracts_manager_app
         // ボタン列
         private DataGridViewButtonColumn updateButtonColumn;
         private DataGridViewButtonColumn deleteButtonColumn;
+
+        private DataGridViewImageColumn imageColumn;
 
 
         public DatabaseHandler databaseHandler { get; set; }
@@ -52,9 +55,13 @@ namespace contracts_manager_app
             updateButtonColumn = new DataGridViewButtonColumn();
             deleteButtonColumn = new DataGridViewButtonColumn();
 
+            // DataGridViewImageColumnの作成
+            imageColumn = new DataGridViewImageColumn();
+
             // 列の名前を設定
             updateButtonColumn.Name = "編集";
             deleteButtonColumn.Name = "削除";
+            imageColumn.Name = "イメージ";
 
             // すべてのボタンに"編集"、"削除"と表示する
             updateButtonColumn.UseColumnTextForButtonValue = true;
@@ -68,36 +75,49 @@ namespace contracts_manager_app
             updateButtonColumn.DefaultCellStyle.BackColor = Color.LightGreen;
             deleteButtonColumn.DefaultCellStyle.BackColor = Color.Coral;
 
+            // デフォルトでセルに表示されるイメージを設定する
+            imageColumn.Image = new Bitmap(@$"C:\Users\toru_yoshida\source\repos\contracts-manager-app\アイコン置き場\kkrn_icon_user_1.png");
+
+            // イメージを縦横の比率を維持して拡大、縮小表示する
+            imageColumn.ImageLayout = DataGridViewImageCellLayout.Zoom;
+
             // DataGridViewに追加する
             dataGridView1.Columns.Add(updateButtonColumn);
             dataGridView1.Columns.Add(deleteButtonColumn);
+            dataGridView1.Columns.Add(imageColumn);
             contacts.Columns.Add("id", typeof(int));
             contacts.Columns.Add("name", typeof(string));
             contacts.Columns.Add("tel", typeof(string));
             contacts.Columns.Add("address", typeof(string));
             contacts.Columns.Add("remark", typeof(string));
+            contacts.Columns.Add("imagePass", typeof(string));
 
             // 情報がそれぞれ dataGridView の何列目にあるか
             updateIndex = dataGridView1.Columns["編集"].Index;
             deleteIndex = dataGridView1.Columns["削除"].Index;
+            imageIndex = dataGridView1.Columns["イメージ"].Index;
             idIndex = dataGridView1.Columns["id"].Index;
             nameIndex = dataGridView1.Columns["name"].Index;
             telIndex = dataGridView1.Columns["tel"].Index;
             addressIndex = dataGridView1.Columns["address"].Index;
             remarkIndex = dataGridView1.Columns["remark"].Index;
+            int imagePassIndex = dataGridView1.Columns["imagePass"].Index;
 
             // dataGridViewのレイアウト用
             dataGridView1.Columns[updateIndex].FillWeight = 1.0f;
             dataGridView1.Columns[deleteIndex].FillWeight = 1.0f;
+            dataGridView1.Columns[imageIndex].FillWeight = 1.0f;
             dataGridView1.Columns[idIndex].FillWeight = 1.0f;
             dataGridView1.Columns[nameIndex].FillWeight = 4.0f;
             dataGridView1.Columns[telIndex].FillWeight = 2.8f;
             dataGridView1.Columns[addressIndex].FillWeight = 5.0f;
             dataGridView1.Columns[remarkIndex].FillWeight = 7.5f;
 
+
             // カラム名を指定
             dataGridView1.Columns[updateIndex].HeaderText = "";
             dataGridView1.Columns[deleteIndex].HeaderText = "";
+            dataGridView1.Columns[imageIndex].HeaderText = "";
             dataGridView1.Columns[nameIndex].HeaderText = "名前";
             dataGridView1.Columns[telIndex].HeaderText = "電話番号";
             dataGridView1.Columns[addressIndex].HeaderText = "メールアドレス";
@@ -105,6 +125,7 @@ namespace contracts_manager_app
 
             // idの列を非表示にする
             dataGridView1.Columns[idIndex].Visible = false;
+            dataGridView1.Columns[imagePassIndex].Visible = false;
 
             // データベースハンドラのインスタンス作成
             databaseHandler = new DatabaseHandler(connectionString);
@@ -516,6 +537,21 @@ namespace contracts_manager_app
         {
             ScreenDisplay();
             searchBox.Text = "";
+        }
+
+        private void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            DataGridView dgv = (DataGridView)sender;
+            if (dgv.Columns[e.ColumnIndex].Name == "イメージ" &&
+                e.RowIndex >= 0)
+            {
+                Debug.WriteLine("test");
+                if (!(dgv["imagePass", e.RowIndex].Value is System.DBNull))
+                {
+                    e.Value = new Bitmap(@$"{(string)dgv["imagePass", e.RowIndex].Value}");
+                    e.FormattingApplied = true;
+                }
+            }
         }
     }
 }
