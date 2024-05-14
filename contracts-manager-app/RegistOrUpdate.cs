@@ -50,11 +50,13 @@ namespace contracts_manager_app
             // 新規登録、更新処理
             if (!error)
             {
+                // 画像ファイルが選択されているか
+                // それによって生成する連絡先オブジェクトの内容を変更する
                 bool addImageFile = CheckCanAddImageFile();
                 Contact contact = toContact(addImageFile);
+
+                // DBに連絡先をマージする
                 RegistOrUpdateToDB(contact);
-                imagePass = "";
-                pictureBox1.Image = Properties.Resources.kkrn_icon_user_1;
             }
         }
 
@@ -223,6 +225,10 @@ namespace contracts_manager_app
             }
         }
 
+        /// <summary>
+        ///  画像を設定する選択がされているか
+        /// </summary>
+        /// <returns></returns>
         private bool CheckCanAddImageFile()
         {
             if (imagePass != null && !deleteImage.Checked)
@@ -254,12 +260,13 @@ namespace contracts_manager_app
         /// <returns>入力情報を格納したContactクラス</returns>
         private Contact toContact(bool isImage)
         {
+            Contact contact;
             string id = inquiryScreen.contact1.id;
             string name = nameBox.Text;
             string tel = telBox.Text;
             string address = addressBox.Text;
             string remark = remarkBox.Text;
-            Contact contact;
+
             if (isImage)
             {
                 contact = new Contact(id, name, tel, address, remark, imagePass);
@@ -298,7 +305,6 @@ namespace contracts_manager_app
             remarkBox.Text = contact.remark;
             
         }
-
 
         /// <summary>
         /// 電話番号のテキストボックスの入力制限設定
@@ -365,9 +371,18 @@ namespace contracts_manager_app
             pictureBox1.Image = Image.FromFile(fileName);
         }
 
+        /// <summary>
+        /// フォームロード時の処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RegistOrUpdate_Load(object sender, EventArgs e)
         {
+            // チェックボックスの初期化
             deleteImage.Checked = false;
+
+            // 表示する画像の分岐
+            // 編集かつすでに画像が設定されている場合のみ、その画像が表示される
             if (imagePass != "")
             {
                 pictureBox1.Image = new Bitmap(imagePass);
