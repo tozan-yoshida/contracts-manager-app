@@ -47,7 +47,7 @@
             // searchBox
             // 
             searchBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            searchBox.Location = new Point(987, 80);
+            searchBox.Location = new Point(1090, 80);
             searchBox.Name = "searchBox";
             searchBox.Size = new Size(304, 31);
             searchBox.TabIndex = 0;
@@ -55,7 +55,7 @@
             // search
             // 
             search.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            search.Location = new Point(1297, 80);
+            search.Location = new Point(1400, 80);
             search.Name = "search";
             search.Size = new Size(57, 31);
             search.TabIndex = 1;
@@ -91,7 +91,6 @@
             dataGridView1.AllowUserToResizeRows = false;
             dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = SystemColors.Control;
@@ -106,10 +105,11 @@
             dataGridView1.ReadOnly = true;
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.RowHeadersWidth = 62;
-            dataGridView1.Size = new Size(1342, 205);
+            dataGridView1.RowTemplate.Height = 43;
+            dataGridView1.Size = new Size(1445, 250);
             dataGridView1.TabIndex = 4;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
-            dataGridView1.CellFormatting += dataGridView1_CellFormatting;
+            //dataGridView1.CellFormatting += dataGridView1_CellFormatting;
             // 
             // contactBindingSource
             // 
@@ -138,7 +138,7 @@
             // showAllContacts
             // 
             showAllContacts.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            showAllContacts.Location = new Point(1208, 117);
+            showAllContacts.Location = new Point(1311, 117);
             showAllContacts.Name = "showAllContacts";
             showAllContacts.Size = new Size(146, 31);
             showAllContacts.TabIndex = 7;
@@ -161,7 +161,7 @@
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1366, 429);
+            ClientSize = new Size(1469, 469);
             Controls.Add(window1);
             Controls.Add(showAllContacts);
             Controls.Add(searchError);

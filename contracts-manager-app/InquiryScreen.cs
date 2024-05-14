@@ -36,7 +36,7 @@ namespace contracts_manager_app
         // ボタン列
         private DataGridViewButtonColumn updateButtonColumn;
         private DataGridViewButtonColumn deleteButtonColumn;
-
+        // アイコン画像列
         private DataGridViewImageColumn imageColumn;
 
 
@@ -167,6 +167,9 @@ namespace contracts_manager_app
             dataGridView1.CurrentCell = null;
             dataGridView1.ClearSelection();
 
+            // アイコン画像を表示する
+            ImageView();
+
         }
 
         /// <summary>
@@ -176,8 +179,9 @@ namespace contracts_manager_app
         {
             contact1.id = "0";
             registOrUpdateScreen.update = false;
-            // ボタンの表示を"登録"に変更
-            registOrUpdateScreen.LabelChanger("登録", "新規追加画面");
+            // ボタンの表示を"登録",フォーム名を"新規追加画面"に変更
+            // アイコンのパスは空
+            registOrUpdateScreen.LabelChanger("登録", "新規追加画面", "");
             // 登録画面の表示
             registOrUpdateScreen.ShowDialogPlus();
         }
@@ -209,11 +213,12 @@ namespace contracts_manager_app
         /// </summary>
         private void UpdateClick(DataGridViewCellEventArgs e)
         {
-            // 編集、更新画面のボタンの表記を"更新"に変更
-            registOrUpdateScreen.LabelChanger("更新", "編集画面");
-            registOrUpdateScreen.update = true;
             // 押された"編集"ボタンの行の情報取得、格納
             RowInfoStore(e);
+
+            // 編集、更新画面のボタンの表記を"更新"に変更
+            registOrUpdateScreen.LabelChanger("更新", "編集画面", contact1.imagePass);
+            registOrUpdateScreen.update = true;
 
             // 遷移先の画面のテキストボックスに自動的に入力
             registOrUpdateScreen.TextBoxRegister(contact1);
@@ -232,6 +237,7 @@ namespace contracts_manager_app
             contact1.name = dataGridView1.Rows[e.RowIndex].Cells[nameIndex].Value.ToString();
             contact1.tel = dataGridView1.Rows[e.RowIndex].Cells[telIndex].Value.ToString();
             contact1.address = dataGridView1.Rows[e.RowIndex].Cells[addressIndex].Value.ToString();
+            contact1.imagePass = dataGridView1.Rows[e.RowIndex].Cells[imagePassIndex].Value.ToString();
             // 備考は何も入力されていない場合があるためif文で判断
             if (dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value != null)
                 contact1.remark = dataGridView1.Rows[e.RowIndex].Cells[remarkIndex].Value.ToString();
@@ -526,7 +532,7 @@ namespace contracts_manager_app
             string[] values = line.Split(',');
 
             // 配列からコンタクトクラスに格納する
-            Contact contact = new Contact(values[0], values[1], values[2], values[3], values[4]);
+            Contact contact = new Contact(values[0], values[1], values[2], values[3], values[4], values[5]);
             // コンタクトクラスをDBにインポート
             databaseHandler.MergeIntoContact(contact);
         }
@@ -540,18 +546,29 @@ namespace contracts_manager_app
             searchBox.Text = "";
         }
 
-        private void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+      /// <summary>
+      /// すべての行に対して画像のパスによって画像を表示させる
+      /// </summary>
+        private void ImageView()
         {
-            DataGridView dgv = (DataGridView)sender;
-            if (dgv.Columns[e.ColumnIndex].Name == "イメージ" &&
-                e.RowIndex >= 0)
+            try
             {
-                if ((string)dgv["imagePass", e.RowIndex].Value != "")
+                foreach (var row in dataGridView1.Rows.Cast<DataGridViewRow>())
                 {
-                    e.Value = new Bitmap(@$"{(string)dgv["imagePass", e.RowIndex].Value}");
-                    e.FormattingApplied = true;
-                }
+                    // 画像パス(画像が存在しない場合、空文字が入力される)
+                    string imagePass = (string)row.Cells[imagePassIndex].Value;
 
+                    // 画像が存在する場合
+                    if (imagePass != "")
+                    {
+                        // パスに従った画像をアイコンの列に代入する
+                        row.Cells[imageIndex].Value = new Bitmap(@$"{imagePass}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }

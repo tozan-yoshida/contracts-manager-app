@@ -67,6 +67,9 @@ namespace contracts_manager_app
             }
         }
 
+        /// <summary>
+        /// 選択したい拡張子によって振る舞いを変更する
+        /// </summary>
         private void DialogFileTypeHandler()
         {
             switch(fileType)

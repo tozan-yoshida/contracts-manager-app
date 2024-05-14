@@ -276,10 +276,11 @@ namespace contracts_manager_app
         /// </summary>
         /// <param name="buttonName">変更するボタンのnameプロパティ</param>
         /// <param name="formName">変更するラベルのnameプロパティ</param>
-        public void LabelChanger(string buttonName, string formName)
+        public void LabelChanger(string buttonName, string formName, string imagePass)
         {
             enter.Text = buttonName;
             formInfo.Text = formName;
+            this.imagePass = imagePass;
         }
 
         /// <summary>
@@ -295,6 +296,7 @@ namespace contracts_manager_app
             telBox.Text = contact.tel;
             addressBox.Text = contact.address;
             remarkBox.Text = contact.remark;
+            
         }
 
 
@@ -366,6 +368,14 @@ namespace contracts_manager_app
         private void RegistOrUpdate_Load(object sender, EventArgs e)
         {
             deleteImage.Checked = false;
+            if (imagePass != "")
+            {
+                pictureBox1.Image = new Bitmap(imagePass);
+            }
+            else
+            {
+                pictureBox1.Image = Properties.Resources.kkrn_icon_user_1;
+            }
         }
     }
 }
