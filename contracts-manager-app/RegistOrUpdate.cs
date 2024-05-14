@@ -21,11 +21,12 @@ namespace contracts_manager_app
     public partial class RegistOrUpdate : Form
     {
 
-        
+
         public bool update { get; set; } = false;
         private bool error { get; set; } = false;
         private InquiryScreen inquiryScreen;
         private DatabaseHandler databaseHandler;
+        private string imagePass;
 
 
 
@@ -46,7 +47,7 @@ namespace contracts_manager_app
 
             // エラーが一つも起きていないときに限り下の処理を行う
             // 新規登録、更新処理
-            if (!error)            
+            if (!error)
             {
                 RegistOrUpdateToDB();
             }
@@ -180,7 +181,8 @@ namespace contracts_manager_app
 
         private void CheckTelError()
         {
-            if(telBox.Text.Length == 0) {
+            if (telBox.Text.Length == 0)
+            {
                 error = true;
                 telError.Text = "数字を15字以内で入力してください";
             }
@@ -209,7 +211,7 @@ namespace contracts_manager_app
         /// </summary>
         private void CheckRemarkError()
         {
-            if(remarkBox.Text.Length > 30)
+            if (remarkBox.Text.Length > 30)
             {
                 error = true;
                 remarkError.Text = "備考は30字以内で入力してください";
@@ -280,7 +282,7 @@ namespace contracts_manager_app
             if (e.KeyChar == '\b') return;
 
             // 数値0～9以外が押されたときはイベントをキャンセルする
-            if(e.KeyChar < '0' || '9' < e.KeyChar) e.Handled  = true;
+            if (e.KeyChar < '0' || '9' < e.KeyChar) e.Handled = true;
         }
 
         /// <summary>
@@ -308,6 +310,24 @@ namespace contracts_manager_app
             telBox.Text = string.Empty;
             addressBox.Text = string.Empty;
             remarkBox.Text = string.Empty;
+        }
+
+        private void fileChoice_Click(object sender, EventArgs e)
+        {
+            // ファイルダイアログを使用する際のインスタンス
+            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog(), "picture");
+
+            // ダイアログを表示、OKボタンが押されたなら画像表示の処理を行う
+            if (fileDialogUse.DialogUse())
+            {
+                FileChoicePushOK(fileDialogUse.fileDialog.FileName);
+            }
+        }
+
+        private void FileChoicePushOK(string fileName)
+        {
+            imagePass = fileName;
+            pictureBox1.Image = System.Drawing.Image.FromFile(fileName);
         }
     }
 }

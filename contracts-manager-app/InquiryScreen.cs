@@ -31,6 +31,7 @@ namespace contracts_manager_app
         private int telIndex;       // 電話番号
         private int addressIndex;   // メールアドレス
         private int remarkIndex;    // 備考
+        private int imagePassIndex; // 画像のパス
 
         // ボタン列
         private DataGridViewButtonColumn updateButtonColumn;
@@ -101,7 +102,7 @@ namespace contracts_manager_app
             telIndex = dataGridView1.Columns["tel"].Index;
             addressIndex = dataGridView1.Columns["address"].Index;
             remarkIndex = dataGridView1.Columns["remark"].Index;
-            int imagePassIndex = dataGridView1.Columns["imagePass"].Index;
+            imagePassIndex = dataGridView1.Columns["imagePass"].Index;
 
             // dataGridViewのレイアウト用
             dataGridView1.Columns[updateIndex].FillWeight = 1.0f;
@@ -312,7 +313,7 @@ namespace contracts_manager_app
         private void ExportEvent()
         {
             // csvファイルのパスをフォルダを指定して取得
-            FileDialogUse fileDialogUse = new FileDialogUse(new SaveFileDialog());
+            FileDialogUse fileDialogUse = new FileDialogUse(new SaveFileDialog(), "csv");
 
             // CSVファイルに書き込むときに使うEncoding
             System.Text.Encoding encoding = System.Text.Encoding.GetEncoding("Shift_JIS");
@@ -458,7 +459,7 @@ namespace contracts_manager_app
             // CSVファイルを読み取る時に使うEncoding
             System.Text.Encoding encoding = System.Text.Encoding.GetEncoding("Shift_JIS");
             // ファイルダイアログを使用する際のインスタンス
-            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog());
+            FileDialogUse fileDialogUse = new FileDialogUse(new OpenFileDialog(), "csv");
 
             // ダイアログを表示、OKボタンが押されたならインポートの処理を行う
             if (fileDialogUse.DialogUse())

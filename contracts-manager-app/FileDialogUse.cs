@@ -15,10 +15,14 @@ namespace contracts_manager_app
         // 開きたいファイルダイアログ
         public FileDialog fileDialog { get; set; }
 
-        public FileDialogUse(FileDialog fileDialog)
+        private string fileType;
+
+        public FileDialogUse(FileDialog fileDialog, string fileType)
         {
             this.fileDialog = fileDialog;
+            this.fileType = fileType;
         }
+
 
         /// <summary>
         /// ファイルダイアログを開き、OKボタンが押されたかどうかを返す
@@ -29,9 +33,7 @@ namespace contracts_manager_app
             // タイトルとはじめのファイル名を設定
             DialogTitleAndNameHandler();
             // [ファイルの種類]に表示される選択肢を指定する
-            fileDialog.Filter = "csvファイル(*.csv)|*.csv";
-            // [ファイルの種類]ではじめに選択されるものを指定する
-            fileDialog.FilterIndex = 0;
+            DialogFileTypeHandler();
             // ダイアログボックスを閉じる前に現在のディレクトリを復元するようにする
             fileDialog.RestoreDirectory = true;
             // ダイアログのOKボタンが押されたかどうかの判定
@@ -62,6 +64,26 @@ namespace contracts_manager_app
                 DateTime dateTime = DateTime.Now;
                 fileDialog.FileName = @$"連絡先_{dateTime.ToString("yyMMddhhmm")}";
                 fileDialog.Title = "保存先のファイルを選択してください";
+            }
+        }
+
+        private void DialogFileTypeHandler()
+        {
+            switch(fileType)
+            {
+                case "csv":
+                    // [ファイルの種類]に表示される選択肢を指定する
+                    fileDialog.Filter = "csvファイル(*.csv)|*.csv";
+                    // [ファイルの種類]ではじめに選択されるものを指定する
+                    fileDialog.FilterIndex = 0;
+                    break;
+
+                case "picture":
+                    // [ファイルの種類]に表示される選択肢を指定する
+                    fileDialog.Filter = "PNGファイル(*.png)|*.png|JPEGファイル(*.jpeg)|*.jpeg|GIFファイル(*.gif)|*.gif";
+                    // [ファイルの種類]ではじめに選択されるものを指定する
+                    fileDialog.FilterIndex = 0;
+                    break;
             }
         }
     }
