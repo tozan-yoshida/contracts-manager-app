@@ -134,6 +134,8 @@ namespace contracts_manager_app
             // 登録・編集画面のインスタンス作成
             registOrUpdateScreen = new RegistOrUpdate(this);
 
+            
+            // 連絡先の初期化
             contact1 = new Contact("", "", "", "", "");
 
         }
@@ -270,7 +272,7 @@ namespace contracts_manager_app
             contact1.id = dataGridView1.Rows[e.RowIndex].Cells[idIndex].Value.ToString();
 
             // Deleteクエリ文作成、実行
-            databaseHandler.DeleteContact(contact1.id);
+            databaseHandler.DeleteContact(contact1);
 
             // 画面の再表示
             ScreenDisplay();

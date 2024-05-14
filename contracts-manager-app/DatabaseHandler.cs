@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
 
 namespace contracts_manager_app
 {
@@ -23,15 +24,17 @@ namespace contracts_manager_app
         }
 
         /// <summary>
-        /// DBにMERGE INTOするときのクエリ文作成、実
+        /// DBにMERGE INTOするときのクエリ文作成、実行
         /// </summary>
         /// <param name="contact">DBに加えたい連絡先</param>
         public void MergeIntoContact(Contact contact)
         {
+            // 連絡先のサニタイジング
+            Contact sanitaizingContact = SanitizingContact(contact);
             // クエリ文作成
-            string cmdTxt = MergeIntoDBQueryStatement(SanitizingContact(contact));
+            string cmdTxt = MergeIntoDBQueryStatement();
             // クエリ文実行
-            DatabaseHandleExecuteNonQuery(cmdTxt);
+            DatabaseHandleExecuteNonQuery2(sanitaizingContact, cmdTxt);
         }
 
         /// <summary>
@@ -52,16 +55,55 @@ namespace contracts_manager_app
         }
 
         /// <summary>
-        /// 入力情報よりMERGE INTOのクエリ文を作成する
+        /// 基本的なクエリ文を実行する
         /// </summary>
-        /// <param name="aContact">登録・更新するためのデータ</param>
-        /// <returns>クエリ文</returns>
-        private string MergeIntoDBQueryStatement(Contact aContact)
+        /// <param name="cmdTxt">クエリ文内容</param>
+        private void DatabaseHandleExecuteNonQuery2(Contact aContact, string cmdTxt)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        conn.Open();
+                        cmd.CommandText = cmdTxt;
+                        Parameterization(aContact, cmd);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show("エラー: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 変数のパラメータ化
+        /// </summary>
+        /// <param name="aContact"></param>
+        /// <param name="cmd"></param>
+        private void Parameterization(Contact aContact, SqlCommand cmd)
+        {
+            cmd.Parameters.Add("@ID", SqlDbType.Int).Value = aContact.id;
+            cmd.Parameters.Add("@NAME", SqlDbType.NVarChar).Value = aContact.name;
+            cmd.Parameters.Add("@TEL", SqlDbType.NVarChar).Value = aContact.tel;
+            cmd.Parameters.Add("@ADDRESS", SqlDbType.NVarChar).Value = aContact.address;
+            cmd.Parameters.Add("@REMARK", SqlDbType.NVarChar).Value = aContact.remark;
+            cmd.Parameters.Add("@IMAGE_PASS", SqlDbType.NVarChar).Value = aContact.imagePass;
+        }
+
+        /// <summary>
+        ///  MERGE INTO のクエリ文
+        /// </summary>
+        /// <returns></returns>
+        private string MergeIntoDBQueryStatement()
         {
             string cmdTxt = $@"MERGE INTO contacts AS target
                                             USING
                                                 (VALUES 
-                                                    ({aContact.id},'{aContact.name}','{aContact.tel}','{aContact.address}','{aContact.remark}','{aContact.imagePass}')
+                                                    (@ID,@NAME,@TEL,@ADDRESS,@REMARK,@IMAGE_PASS)
                                                 ) AS source(id, name, tel, address, remark, imagePass)
                                             ON target.id = source.id 
                                             WHEN MATCHED THEN 
@@ -77,38 +119,15 @@ namespace contracts_manager_app
         }
 
         /// <summary>
-        /// 基本的なクエリ文を実行する
-        /// </summary>
-        /// <param name="cmdTxt">クエリ文内容</param>
-        private void DatabaseHandleExecuteNonQuery(string cmdTxt)
-        {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    using(SqlCommand cmd = conn.CreateCommand())
-                    {
-                        conn.Open();
-                        cmd.CommandText = cmdTxt;
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }catch (SqlException ex)
-            {
-                MessageBox.Show("エラー: "+ ex.Message);
-            }
-        }
-
-        /// <summary>
         /// 連絡先の削除のクエリ文作成、実行
         /// </summary>
         /// <param name="id">削除したい連絡先のid</param>
-        public void DeleteContact(string id)
+        public void DeleteContact(Contact contact)
         {
             // idのサニタイジング
-            id = id.Replace("'", "''");
-            string cmdTxt = $@"DELETE FROM contacts WHERE id = {id}";
-            DatabaseHandleExecuteNonQuery(cmdTxt);
+            Contact sanitizingContact = SanitizingContact(contact);
+            string cmdTxt = $@"DELETE FROM contacts WHERE id = @ID";
+            DatabaseHandleExecuteNonQuery2(sanitizingContact, cmdTxt);
         }
 
         /// <summary>
