@@ -26,12 +26,12 @@ namespace contracts_manager_app
         /// DBにMERGE INTOするときのクエリ文作成、実行
         /// </summary>
         /// <param name="contact">DBに加えたい連絡先</param>
-        public void MergeIntoContact(Contact contact)
+        public void MergeIntoContact(Contact contact, bool isRegist)
         {
             // 連絡先のサニタイジング
             Contact sanitaizingContact = SanitizingContact(contact);
             // クエリ文作成
-            string cmdTxt = MergeIntoDBQueryStatement();
+            string cmdTxt = RegistOrImportQueryStatement(isRegist);
             // クエリ文実行
             DatabaseHandleExecuteNonQuery2(sanitaizingContact, cmdTxt);
         }
@@ -99,7 +99,7 @@ namespace contracts_manager_app
         /// <returns></returns>
         private string MergeIntoDBQueryStatement()
         {
-            string cmdTxt = $@"MERGE INTO contacts AS target
+            string cmdTxt =              $@"MERGE INTO contacts AS target
                                             USING
                                                 (VALUES 
                                                     (@ID,@NAME,@TEL,@ADDRESS,@REMARK,@IMAGE_PASS)
@@ -111,10 +111,26 @@ namespace contracts_manager_app
                                                 target.address = source.address, 
                                                 target.remark = source.remark,
                                                 target.imagePass = source.imagePass
-                                            WHEN NOT MATCHED THEN 
-                                                INSERT (name, tel, address, remark, imagePass)
-                                                VALUES (source.name, source.tel, source.address, source.remark, source.imagePass); ";
+                                            WHEN NOT MATCHED THEN";
             return cmdTxt;
+        }
+
+        private string RegistOrImportQueryStatement(bool isRegist)
+        {
+            if (isRegist)
+            {
+                return   @$"{MergeIntoDBQueryStatement()}
+                            INSERT (name, tel, address, remark, imagePass)
+                            VALUES (source.name, source.tel, source.address, source.remark, source.imagePass);";
+            }
+            else
+            {
+                return   $@"SET IDENTITY_INSERT contacts ON;
+                            {MergeIntoDBQueryStatement()}
+                            INSERT (id, name, tel, address, remark, imagePass)
+                            VALUES (source.id, source.name, source.tel, source.address, source.remark, source.imagePass);
+                            SET IDENTITY_INSERT contacts OFF;";
+            }
         }
 
         /// <summary>

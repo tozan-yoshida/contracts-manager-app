@@ -196,7 +196,7 @@ namespace contracts_manager_app
         private void register_Click(object sender, EventArgs e)
         {
             contact1.id = "0";
-            registOrUpdateScreen.update = false;
+            registOrUpdateScreen.regist = true;
             // ボタンの表示を"登録",フォーム名を"新規追加画面"に変更
             // アイコンのパスは空
             registOrUpdateScreen.LabelChanger("登録", "新規追加画面", "");
@@ -236,7 +236,7 @@ namespace contracts_manager_app
 
             // 編集、更新画面のボタンの表記を"更新"に変更
             registOrUpdateScreen.LabelChanger("更新", "編集画面", contact1.imagePass);
-            registOrUpdateScreen.update = true;
+            registOrUpdateScreen.regist = false;
 
             // 遷移先の画面のテキストボックスに自動的に入力
             registOrUpdateScreen.TextBoxRegister(contact1);
@@ -552,7 +552,7 @@ namespace contracts_manager_app
             // 配列からコンタクトクラスに格納する
             Contact contact = new Contact(values[0], values[1], values[2], values[3], values[4], values[5]);
             // コンタクトクラスをDBにインポート
-            databaseHandler.MergeIntoContact(contact);
+            databaseHandler.MergeIntoContact(contact, false);
         }
 
         /// <summary>
