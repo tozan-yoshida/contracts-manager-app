@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.Marshalling;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
+using System.Security.Cryptography.X509Certificates;
 
 namespace contracts_manager_app
 {
@@ -41,6 +42,14 @@ namespace contracts_manager_app
 
 
         public DatabaseHandler databaseHandler { get; set; }
+
+        // 動的に追加するページボタンの配列
+        private PageButton[]? pageButtons;
+
+        // 現在の総ページ数
+        public int currentPageCount {  get; set; }
+        // 現在表示しているページ番号
+        public int currentPageNumber { get; set; }
 
         public InquiryScreen()
         {
@@ -138,6 +147,9 @@ namespace contracts_manager_app
             // 連絡先の初期化
             contact1 = new Contact("", "", "", "", "");
 
+            currentPageNumber = 0;
+
+            pageButtons = null;
         }
 
         /// <summary>
@@ -148,7 +160,7 @@ namespace contracts_manager_app
         private void Form1_Load(object sender, EventArgs e)
         {
             // DatagridViewの表示
-            ScreenDisplay();
+            ScreenDisplay(); 
         }
 
         /// <summary>
@@ -164,6 +176,11 @@ namespace contracts_manager_app
 
             // DB上からデータテーブルにデータを渡す
             databaseHandler.DataAdaptDataTable("SELECT * FROM contacts", contacts);
+            currentPageCount= PageCount();
+
+            PageButtonCreate();
+            currentPage.Text = @$"ページ{currentPageNumber+1}/{currentPageCount}";
+            Paging();
 
             // dataGridViewの初期表示でセルを選択させない
             dataGridView1.CurrentCell = null;
@@ -171,7 +188,6 @@ namespace contracts_manager_app
 
             // アイコン画像を表示する
             ImageView();
-
         }
 
         /// <summary>
@@ -513,7 +529,7 @@ namespace contracts_manager_app
             while (!sr.EndOfStream)
             {
                 // CSVファイルを1行読み込む
-                string line = sr.ReadLine();
+                string? line = sr.ReadLine();
 
                 // 2行目以降の場合
                 if (notFirst)
@@ -544,6 +560,7 @@ namespace contracts_manager_app
         /// </summary>
         private void showAllContacts_Click(object sender, EventArgs e)
         {
+            currentPageNumber = 0;
             ScreenDisplay();
             searchBox.Text = "";
         }
@@ -572,6 +589,105 @@ namespace contracts_manager_app
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// ページング処理
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        private void Paging()
+        {
+            contacts.DefaultView.RowFilter = PagingMenber();
+        }
+
+        /// <summary>
+        /// 1ページに表示するデータのフィルタ文を作成
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        private string PagingMenber()
+        {
+            string pagingMember = "";
+            if (currentPageNumber * 5 < dataGridView1.RowCount)
+            {
+                pagingMember = @$"id = {dataGridView1.Rows[currentPageNumber * 5].Cells[idIndex].Value}";
+                for (int i = 1; i < 5; i++)
+                {
+                    if (currentPageNumber * 5 + i < dataGridView1.RowCount)
+                    {
+                        pagingMember += $@"OR id = {dataGridView1.Rows[currentPageNumber * 5 + i].Cells[idIndex].Value}";
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                currentPageNumber--;
+                currentPage.Text = @$"ページ{currentPageNumber + 1}/{currentPageCount}";
+
+                pagingMember = PagingMenber();
+            }
+            return pagingMember;
+        }
+
+        /// <summary>
+        /// ページボタンを動的に作成する
+        /// </summary>
+        private void PageButtonCreate()
+        {
+            //ページボタンの初期化
+            if(pageButtons != null)
+            {
+                foreach(var button in pageButtons)
+                {
+                    this.Controls.Remove(button);
+                    button.Dispose();
+                }
+            }
+
+            // 作るページの数
+            // データ数/5 端数切り上げ
+            int pageCount = PageCount();
+
+            pageButtons = new PageButton[pageCount];
+            for(int i = 0; i < pageCount; i++)
+            {
+                // インスタンス作成
+                pageButtons[i] = new PageButton();
+
+                // 名前とテキストのプロパティを設定
+                pageButtons[i].Name = $"pageButton{i}";
+                pageButtons[i].Text = (i+1).ToString();
+
+                // ページ番号の設定
+                pageButtons[i].pageNumber = i;
+
+                // フィールドidIndexの設定
+                pageButtons[i].inquiryScreen = this;
+
+                // サイズと配置
+                pageButtons[i].Size = new Size(44, 44);
+                pageButtons[i].Location = new Point(12 + 50 * i, 415);
+
+                // フォームへの追加
+                this.Controls.Add(pageButtons[i]);
+
+                // クリック時のボタンごとのイベント動作を作成する
+                pageButtons[i].eventMaking();
+            }
+        }
+
+        /// <summary>
+        ///  現在のページ数を返す
+        ///  1ページは5行
+        /// </summary>
+        /// <returns>現在のページ数</returns>
+        public int PageCount()
+        {
+            return (int)Math.Ceiling((double)dataGridView1.RowCount / 5);
         }
     }
 }

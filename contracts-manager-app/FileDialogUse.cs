@@ -62,7 +62,7 @@ namespace contracts_manager_app
             // fileDialog が SaveFileDialog クラスの場合
             else if(fileDialog is SaveFileDialog){
                 DateTime dateTime = DateTime.Now;
-                fileDialog.FileName = @$"連絡先_{dateTime.ToString("yyMMddhhmm")}";
+                fileDialog.FileName = @$"連絡先_{dateTime.ToString("yyMMddHHmm")}";
                 fileDialog.Title = "保存先のファイルを選択してください";
             }
         }
