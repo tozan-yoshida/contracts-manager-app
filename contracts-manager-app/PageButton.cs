@@ -8,12 +8,13 @@ namespace contracts_manager_app
 {
     public class PageButton : Button
     {
-        int pageNumber;
+        public InquiryScreen inquiryScreen { get; set; }
+
+        public int pageNumber { get; set; }
 
         // ボタンへのイベントをセットする
-        public void eventMaking(int pageNumber)
+        public void eventMaking()
         {
-            this.pageNumber = pageNumber;
             this.Click += new EventHandler(doClickEvent);
         }
 
@@ -26,7 +27,8 @@ namespace contracts_manager_app
         // クリックイベントの実態
         public void doClickEvent(object sender, EventArgs e)
         {
-            MessageBox.Show($"{pageNumber}");
+            inquiryScreen.pageNumber = pageNumber;
+            inquiryScreen.ScreenDisplay();
         }
     }
 }

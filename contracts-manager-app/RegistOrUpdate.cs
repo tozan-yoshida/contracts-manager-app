@@ -248,6 +248,10 @@ namespace contracts_manager_app
         {
             // 入力情報をDBにMERGE INTO する
             databaseHandler.MergeIntoContact(contact);
+            if (!update)
+            {
+                inquiryScreen.pageNumber = inquiryScreen.PageCount();
+            }
             // dataGridViewを再表示
             inquiryScreen.ScreenDisplay();
             // このフォームを閉じる

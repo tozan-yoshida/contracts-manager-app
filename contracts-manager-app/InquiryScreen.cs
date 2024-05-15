@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.Marshalling;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
+using System.Security.Cryptography.X509Certificates;
 
 namespace contracts_manager_app
 {
@@ -21,6 +22,8 @@ namespace contracts_manager_app
 
         // 連絡先の格納クラス
         public Contact contact1 { get; set; }
+
+        public int pageNumber {  get; set; }
 
         // それぞれの情報が何列目にあるか
         private int updateIndex;    // 編集ボタン
@@ -41,6 +44,8 @@ namespace contracts_manager_app
 
 
         public DatabaseHandler databaseHandler { get; set; }
+
+        private PageButton[]? pageButtons;
 
         public InquiryScreen()
         {
@@ -138,6 +143,9 @@ namespace contracts_manager_app
             // 連絡先の初期化
             contact1 = new Contact("", "", "", "", "");
 
+            pageNumber = 0;
+
+            pageButtons = null;
         }
 
         /// <summary>
@@ -149,8 +157,6 @@ namespace contracts_manager_app
         {
             // DatagridViewの表示
             ScreenDisplay(); 
-            PageButtonCreate();
-            Paging();
         }
 
         /// <summary>
@@ -166,6 +172,9 @@ namespace contracts_manager_app
 
             // DB上からデータテーブルにデータを渡す
             databaseHandler.DataAdaptDataTable("SELECT * FROM contacts", contacts);
+
+            PageButtonCreate();
+            Paging(pageNumber);
 
             // dataGridViewの初期表示でセルを選択させない
             dataGridView1.CurrentCell = null;
@@ -545,6 +554,7 @@ namespace contracts_manager_app
         /// </summary>
         private void showAllContacts_Click(object sender, EventArgs e)
         {
+            pageNumber = 0;
             ScreenDisplay();
             searchBox.Text = "";
         }
@@ -575,36 +585,84 @@ namespace contracts_manager_app
             }
         }
 
-        private void Paging()
+        /// <summary>
+        /// ページング処理
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        private void Paging(int pageNumber)
         {
-            List<int> list = new List<int>();
-
-            foreach(var row in dataGridView1.Rows.Cast<DataGridViewRow>())
-            {
-                list.Add((int)row.Cells[idIndex].Value);
-            }
-
-            contacts.DefaultView.RowFilter = @$"{dataGridView1.Rows[0].Cells[idIndex].Value} <= id AND id <= {dataGridView1.Rows[4].Cells[idIndex].Value}";
+            contacts.DefaultView.RowFilter = PagingMenber(pageNumber);
         }
 
+        private string PagingMenber(int pageNumber)
+        {
+            string pagingMember = @$"id = {dataGridView1.Rows[pageNumber * 5].Cells[idIndex].Value}";
+            for(int i=1; i< 5; i++)
+            {
+                if(pageNumber*5+i < dataGridView1.RowCount)
+                {
+                    pagingMember += $@"OR id = {dataGridView1.Rows[pageNumber * 5 + i].Cells[idIndex].Value}";
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return pagingMember;
+        }
+
+        /// <summary>
+        /// ページボタンを動的に作成する
+        /// </summary>
         private void PageButtonCreate()
         {
+
+            if(pageButtons != null)
+            {
+                Debug.WriteLine("フォームは既に表示されています");
+                return;
+            }
+
             // 作るページの数
             // データ数/5 端数切り上げ
-            int pageCount = (int)Math.Ceiling((double)dataGridView1.RowCount/5);
+            int pageCount = PageCount();
 
-            PageButton[] pageButtons = new PageButton[pageCount];
+            pageButtons = new PageButton[pageCount];
             for(int i = 0; i < pageCount; i++)
             {
+                // インスタンス作成
                 pageButtons[i] = new PageButton();
 
+                // 名前とテキストのプロパティを設定
                 pageButtons[i].Name = $"pageButton{i}";
                 pageButtons[i].Text = (i+1).ToString();
+
+                // ページ番号の設定
+                pageButtons[i].pageNumber = i;
+
+                // フィールドidIndexの設定
+                pageButtons[i].inquiryScreen = this;
+
+                // サイズと配置
                 pageButtons[i].Size = new Size(44, 44);
                 pageButtons[i].Location = new Point(12 + 50 * i, 415);
+
+                // フォームへの追加
                 this.Controls.Add(pageButtons[i]);
-                pageButtons[i].eventMaking(i+1);
+
+                // クリック時のボタンごとのイベント動作を作成する
+                pageButtons[i].eventMaking();
             }
+        }
+
+        /// <summary>
+        ///  現在のページ数を返す
+        ///  1ページは5行
+        /// </summary>
+        /// <returns>現在のページ数</returns>
+        public int PageCount()
+        {
+            return (int)Math.Ceiling((double)dataGridView1.RowCount / 5);
         }
     }
 }
