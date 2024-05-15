@@ -40,6 +40,7 @@
             searchError = new Label();
             showAllContacts = new Button();
             window1 = new Label();
+            currentPage = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)contactBindingSource).BeginInit();
             SuspendLayout();
@@ -156,11 +157,20 @@
             window1.TabIndex = 8;
             window1.Text = "照会画面";
             // 
+            // currentPage
+            // 
+            currentPage.AutoSize = true;
+            currentPage.Location = new Point(1371, 407);
+            currentPage.Name = "currentPage";
+            currentPage.Size = new Size(0, 25);
+            currentPage.TabIndex = 9;
+            // 
             // InquiryScreen
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1469, 469);
+            Controls.Add(currentPage);
             Controls.Add(window1);
             Controls.Add(showAllContacts);
             Controls.Add(searchError);
@@ -191,5 +201,6 @@
         private Button showAllContacts;
         private Label window1;
         private BindingSource contactBindingSource;
+        private Label currentPage;
     }
 }

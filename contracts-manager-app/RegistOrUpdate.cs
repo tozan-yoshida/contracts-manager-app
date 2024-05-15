@@ -35,6 +35,7 @@ namespace contracts_manager_app
             this.inquiryScreen = inquiryScreen;
             databaseHandler = inquiryScreen.databaseHandler;
             InitializeComponent();
+            imagePass = "";
         }
 
 
@@ -250,7 +251,7 @@ namespace contracts_manager_app
             databaseHandler.MergeIntoContact(contact);
             if (!update)
             {
-                inquiryScreen.pageNumber = inquiryScreen.PageCount();
+                inquiryScreen.currentPageNumber = inquiryScreen.currentPageCount;
             }
             // dataGridViewを再表示
             inquiryScreen.ScreenDisplay();

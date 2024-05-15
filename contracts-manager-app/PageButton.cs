@@ -27,7 +27,7 @@ namespace contracts_manager_app
         // クリックイベントの実態
         public void doClickEvent(object sender, EventArgs e)
         {
-            inquiryScreen.pageNumber = pageNumber;
+            inquiryScreen.currentPageNumber = pageNumber;
             inquiryScreen.ScreenDisplay();
         }
     }

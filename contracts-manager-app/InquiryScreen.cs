@@ -23,8 +23,6 @@ namespace contracts_manager_app
         // 連絡先の格納クラス
         public Contact contact1 { get; set; }
 
-        public int pageNumber {  get; set; }
-
         // それぞれの情報が何列目にあるか
         private int updateIndex;    // 編集ボタン
         private int deleteIndex;    // 削除ボタン
@@ -45,7 +43,13 @@ namespace contracts_manager_app
 
         public DatabaseHandler databaseHandler { get; set; }
 
+        // 動的に追加するページボタンの配列
         private PageButton[]? pageButtons;
+
+        // 現在の総ページ数
+        public int currentPageCount {  get; set; }
+        // 現在表示しているページ番号
+        public int currentPageNumber { get; set; }
 
         public InquiryScreen()
         {
@@ -143,7 +147,7 @@ namespace contracts_manager_app
             // 連絡先の初期化
             contact1 = new Contact("", "", "", "", "");
 
-            pageNumber = 0;
+            currentPageNumber = 0;
 
             pageButtons = null;
         }
@@ -172,9 +176,11 @@ namespace contracts_manager_app
 
             // DB上からデータテーブルにデータを渡す
             databaseHandler.DataAdaptDataTable("SELECT * FROM contacts", contacts);
+            currentPageCount= PageCount();
 
             PageButtonCreate();
-            Paging(pageNumber);
+            currentPage.Text = @$"ページ{currentPageNumber+1}/{currentPageCount}";
+            Paging();
 
             // dataGridViewの初期表示でセルを選択させない
             dataGridView1.CurrentCell = null;
@@ -523,7 +529,7 @@ namespace contracts_manager_app
             while (!sr.EndOfStream)
             {
                 // CSVファイルを1行読み込む
-                string line = sr.ReadLine();
+                string? line = sr.ReadLine();
 
                 // 2行目以降の場合
                 if (notFirst)
@@ -554,7 +560,7 @@ namespace contracts_manager_app
         /// </summary>
         private void showAllContacts_Click(object sender, EventArgs e)
         {
-            pageNumber = 0;
+            currentPageNumber = 0;
             ScreenDisplay();
             searchBox.Text = "";
         }
@@ -589,24 +595,40 @@ namespace contracts_manager_app
         /// ページング処理
         /// </summary>
         /// <param name="pageNumber"></param>
-        private void Paging(int pageNumber)
+        private void Paging()
         {
-            contacts.DefaultView.RowFilter = PagingMenber(pageNumber);
+            contacts.DefaultView.RowFilter = PagingMenber();
         }
 
-        private string PagingMenber(int pageNumber)
+        /// <summary>
+        /// 1ページに表示するデータのフィルタ文を作成
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        private string PagingMenber()
         {
-            string pagingMember = @$"id = {dataGridView1.Rows[pageNumber * 5].Cells[idIndex].Value}";
-            for(int i=1; i< 5; i++)
+            string pagingMember = "";
+            if (currentPageNumber * 5 < dataGridView1.RowCount)
             {
-                if(pageNumber*5+i < dataGridView1.RowCount)
+                pagingMember = @$"id = {dataGridView1.Rows[currentPageNumber * 5].Cells[idIndex].Value}";
+                for (int i = 1; i < 5; i++)
                 {
-                    pagingMember += $@"OR id = {dataGridView1.Rows[pageNumber * 5 + i].Cells[idIndex].Value}";
+                    if (currentPageNumber * 5 + i < dataGridView1.RowCount)
+                    {
+                        pagingMember += $@"OR id = {dataGridView1.Rows[currentPageNumber * 5 + i].Cells[idIndex].Value}";
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    break;
-                }
+            }
+            else
+            {
+                currentPageNumber--;
+                currentPage.Text = @$"ページ{currentPageNumber + 1}/{currentPageCount}";
+
+                pagingMember = PagingMenber();
             }
             return pagingMember;
         }
@@ -616,11 +638,14 @@ namespace contracts_manager_app
         /// </summary>
         private void PageButtonCreate()
         {
-
+            //ページボタンの初期化
             if(pageButtons != null)
             {
-                Debug.WriteLine("フォームは既に表示されています");
-                return;
+                foreach(var button in pageButtons)
+                {
+                    this.Controls.Remove(button);
+                    button.Dispose();
+                }
             }
 
             // 作るページの数
