@@ -176,18 +176,24 @@ namespace contracts_manager_app
 
             // DB上からデータテーブルにデータを渡す
             databaseHandler.DataAdaptDataTable("SELECT * FROM contacts", contacts);
-            currentPageCount= PageCount();
 
-            PageButtonCreate();
-            currentPage.Text = @$"ページ{currentPageNumber+1}/{currentPageCount}";
+            // ページング処理
             Paging();
 
             // dataGridViewの初期表示でセルを選択させない
-            dataGridView1.CurrentCell = null;
-            dataGridView1.ClearSelection();
+            ClearSelection();
 
             // アイコン画像を表示する
             ImageView();
+        }
+
+        /// <summary>
+        /// dataGridViewの初期表示でセルを選択させない
+        /// </summary>
+        private void ClearSelection()
+        {
+            dataGridView1.CurrentCell = null;
+            dataGridView1.ClearSelection();
         }
 
         /// <summary>
@@ -308,8 +314,7 @@ namespace contracts_manager_app
                                                     OR remark LIKE'%{searchBox.Text}%' ";
             }
             // dataGridViewの初期表示でセルを選択させない
-            dataGridView1.CurrentCell = null;
-            dataGridView1.ClearSelection();
+            ClearSelection();
         }
 
         /// <summary>
@@ -594,43 +599,88 @@ namespace contracts_manager_app
         /// <summary>
         /// ページング処理
         /// </summary>
-        /// <param name="pageNumber"></param>
         private void Paging()
         {
-            contacts.DefaultView.RowFilter = PagingMenber();
+            // 現在のページ数
+            currentPageCount = PageCount();
+            // ページボタン作成
+            PageButtonCreate();
+            // ページ番号表示
+            currentPage.Text = @$"ページ{currentPageNumber + 1}/{currentPageCount}";
+            // 現在のページに対応するデータ表示
+            PageFiltering();
         }
 
         /// <summary>
-        /// 1ページに表示するデータのフィルタ文を作成
+        /// 現在のページに対応するデータ表示
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        private void PageFiltering()
+        {
+            contacts.DefaultView.RowFilter = PagingMember();
+        }
+
+        /// <summary>
+        /// 通常時と特例時で処理を分岐
         /// </summary>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        private string PagingMenber()
+        private string PagingMember()
         {
-            string pagingMember = "";
+            string pagingMember;
+            // 通常時
             if (currentPageNumber * 5 < dataGridView1.RowCount)
             {
-                pagingMember = @$"id = {dataGridView1.Rows[currentPageNumber * 5].Cells[idIndex].Value}";
-                for (int i = 1; i < 5; i++)
-                {
-                    if (currentPageNumber * 5 + i < dataGridView1.RowCount)
-                    {
-                        pagingMember += $@"OR id = {dataGridView1.Rows[currentPageNumber * 5 + i].Cells[idIndex].Value}";
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                // フィルタ用の文章の作成
+                pagingMember = PagingMemberStatement();
             }
+            // 現在のページが最後のページ、かつ連絡先が1件しか存在しない時に
+            // その連絡先を削除した場合に行う処理
             else
             {
+                // 1つ前のページに戻り、フィルタ文の作成を行う
                 currentPageNumber--;
                 currentPage.Text = @$"ページ{currentPageNumber + 1}/{currentPageCount}";
-
-                pagingMember = PagingMenber();
+                pagingMember = PagingMember();
             }
             return pagingMember;
+        }
+
+        /// <summary>
+        /// フィルタ用の文章の作成
+        /// </summary>
+        /// <returns></returns>
+        private string PagingMemberStatement()
+        {
+            int i = 0;
+            // ページの1行目に表示させる連絡先の判定
+            string pagingMember = idSearch(i);
+            // 同ページの2行目~5行目の処理
+            for (i = 1; i < 5; i++)
+            {
+                // 同じページの2行目以降に連絡先が存在するか
+                if (currentPageNumber * 5 + i < dataGridView1.RowCount)
+                {
+                    // 表示させる連絡先の判定
+                    pagingMember += $@"OR {idSearch(i)}";
+                }
+                // 存在しない場合
+                else
+                {
+                    break;
+                }
+            }
+            return pagingMember;
+        }
+
+        /// <summary>
+        /// idがページに表示させる連絡先と同一かの判定を行う文
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        private string idSearch(int i)
+        {
+            return @$"id = {dataGridView1.Rows[currentPageNumber * 5 + i].Cells[idIndex].Value}";
         }
 
         /// <summary>
@@ -639,45 +689,68 @@ namespace contracts_manager_app
         private void PageButtonCreate()
         {
             //ページボタンの初期化
-            if(pageButtons != null)
-            {
-                foreach(var button in pageButtons)
-                {
-                    this.Controls.Remove(button);
-                    button.Dispose();
-                }
-            }
+            PageButtonInitialization();
 
             // 作るページの数
             // データ数/5 端数切り上げ
             int pageCount = PageCount();
 
             pageButtons = new PageButton[pageCount];
-            for(int i = 0; i < pageCount; i++)
+            for(int pageNumber = 0; pageNumber < pageCount; pageNumber++)
             {
-                // インスタンス作成
-                pageButtons[i] = new PageButton();
-
-                // 名前とテキストのプロパティを設定
-                pageButtons[i].Name = $"pageButton{i}";
-                pageButtons[i].Text = (i+1).ToString();
-
-                // ページ番号の設定
-                pageButtons[i].pageNumber = i;
-
-                // フィールドidIndexの設定
-                pageButtons[i].inquiryScreen = this;
-
-                // サイズと配置
-                pageButtons[i].Size = new Size(44, 44);
-                pageButtons[i].Location = new Point(12 + 50 * i, 415);
-
-                // フォームへの追加
-                this.Controls.Add(pageButtons[i]);
-
-                // クリック時のボタンごとのイベント動作を作成する
-                pageButtons[i].eventMaking();
+                // ボタンのプロパティ変更
+                pageButtons[pageNumber]  = PageButtonProperty(pageNumber);
             }
+        }
+
+        /// <summary>
+        /// ページボタンの初期化
+        /// </summary>
+        private void PageButtonInitialization()
+        {
+            // ページボタンが既に存在している場合
+            if (pageButtons != null)
+            {
+                // すべてのページボタンを削除する
+                foreach (var button in pageButtons)
+                {
+                    this.Controls.Remove(button);
+                    button.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// ページボタンの各プロパティとフィールドを設定する
+        /// </summary>
+        /// <param name="pageNumber">ページ番号</param>
+        /// <returns></returns>
+        private PageButton PageButtonProperty(int pageNumber)
+        {
+            // インスタンス作成
+            PageButton pageButton = new PageButton();
+
+            // 名前とテキストのプロパティを設定
+            pageButton.Name = $"pageButton{pageNumber}";
+            pageButton.Text = (pageNumber + 1).ToString();
+
+            // ページ番号の設定
+            pageButton.pageNumber = pageNumber;
+
+            // このフォームを参照する設定
+            pageButton.inquiryScreen = this;
+
+            // サイズと配置
+            pageButton.Size = new Size(44, 44);
+            pageButton.Location = new Point(12 + 50 * pageNumber, 415);
+
+            // フォームへの追加
+            this.Controls.Add(pageButton);
+
+            // クリック時のボタンごとのイベント動作を作成する
+            pageButton.eventMaking();
+
+            return pageButton;
         }
 
         /// <summary>

@@ -115,6 +115,11 @@ namespace contracts_manager_app
             return cmdTxt;
         }
 
+        /// <summary>
+        /// 新規登録かインポートかで生成するクエリ文をハンドルする
+        /// </summary>
+        /// <param name="isRegist">新規登録か否か</param>
+        /// <returns></returns>
         private string RegistOrImportQueryStatement(bool isRegist)
         {
             if (isRegist)
