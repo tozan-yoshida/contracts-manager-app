@@ -311,7 +311,7 @@ namespace contracts_manager_app
                 // データにフィルターをかける
                 // 条件はテキストボックスの文字列が名前、備考のいずれかの一部もしくは全部に一致
                 contacts.DefaultView.RowFilter = @$"name LIKE '%{searchBox.Text}%'
-                                                    OR remark LIKE'%{searchBox.Text}%' ";
+                                                    OR remark LIKE'%{searchBox.Text}%'";
             }
             // dataGridViewの初期表示でセルを選択させない
             ClearSelection();
@@ -515,7 +515,9 @@ namespace contracts_manager_app
                     // 末尾まで繰り返す
                     ReadCsv(sr, notFirst);
                     // 画面の更新
+                    currentPageNumber = 0;
                     ScreenDisplay();
+                    MessageBox.Show(@$"{fileName}をインポートしました");
                 }
             }
             catch (Exception ex)
