@@ -148,7 +148,9 @@ namespace contracts_manager_app
         private void Form1_Load(object sender, EventArgs e)
         {
             // DatagridViewの表示
-            ScreenDisplay();
+            ScreenDisplay(); 
+            PageButtonCreate();
+            Paging();
         }
 
         /// <summary>
@@ -171,7 +173,6 @@ namespace contracts_manager_app
 
             // アイコン画像を表示する
             ImageView();
-
         }
 
         /// <summary>
@@ -571,6 +572,38 @@ namespace contracts_manager_app
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void Paging()
+        {
+            List<int> list = new List<int>();
+
+            foreach(var row in dataGridView1.Rows.Cast<DataGridViewRow>())
+            {
+                list.Add((int)row.Cells[idIndex].Value);
+            }
+
+            contacts.DefaultView.RowFilter = @$"{dataGridView1.Rows[0].Cells[idIndex].Value} <= id AND id <= {dataGridView1.Rows[4].Cells[idIndex].Value}";
+        }
+
+        private void PageButtonCreate()
+        {
+            // 作るページの数
+            // データ数/5 端数切り上げ
+            int pageCount = (int)Math.Ceiling((double)dataGridView1.RowCount/5);
+
+            PageButton[] pageButtons = new PageButton[pageCount];
+            for(int i = 0; i < pageCount; i++)
+            {
+                pageButtons[i] = new PageButton();
+
+                pageButtons[i].Name = $"pageButton{i}";
+                pageButtons[i].Text = (i+1).ToString();
+                pageButtons[i].Size = new Size(44, 44);
+                pageButtons[i].Location = new Point(12 + 50 * i, 415);
+                this.Controls.Add(pageButtons[i]);
+                pageButtons[i].eventMaking(i+1);
             }
         }
     }

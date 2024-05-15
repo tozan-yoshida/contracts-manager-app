@@ -4,6 +4,9 @@
     <Compile Update="InquiryScreen.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="PageButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="RegistOrUpdate.cs">
       <SubType>Form</SubType>
     </Compile>
