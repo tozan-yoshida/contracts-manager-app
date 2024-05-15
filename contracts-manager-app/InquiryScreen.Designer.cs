@@ -159,6 +159,7 @@
             // 
             // currentPage
             // 
+            currentPage.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             currentPage.AutoSize = true;
             currentPage.Location = new Point(1371, 407);
             currentPage.Name = "currentPage";
