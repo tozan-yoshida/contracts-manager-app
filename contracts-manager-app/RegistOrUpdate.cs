@@ -251,7 +251,8 @@ namespace contracts_manager_app
             databaseHandler.MergeIntoContact(contact, true);
             if (regist)
             {
-                inquiryScreen.currentPageNumber = inquiryScreen.currentPageCount;
+                inquiryScreen.isAllData = true;
+                inquiryScreen.currentPageNumber = inquiryScreen.allPageCount;
             }
             // dataGridViewを再表示
             inquiryScreen.ScreenDisplay();
