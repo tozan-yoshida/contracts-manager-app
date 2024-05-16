@@ -22,7 +22,7 @@ namespace contracts_manager_app
     {
 
 
-        public bool update { get; set; } = false;
+        public bool regist { get; set; } = true;
         private bool error { get; set; } = false;
         private InquiryScreen inquiryScreen;
         private DatabaseHandler databaseHandler;
@@ -145,18 +145,18 @@ namespace contracts_manager_app
         private void CheckNameUploadOrRegist(List<string> idList)
         {
             // 更新の場合
-            if (update)
-            {
-                CheckUpdateNameError(idList);
-            }
-            // 新規登録の場合
-            else
+            if (regist)
             {
                 // 同じ名前のオブジェクトが存在している場合、重複エラー
                 if (idList.Any())
                 {
                     DuplicationError();
                 }
+            }
+            // 新規登録の場合
+            else
+            {
+                CheckUpdateNameError(idList);
             }
         }
 
@@ -248,8 +248,8 @@ namespace contracts_manager_app
         private void RegistOrUpdateToDB(Contact contact)
         {
             // 入力情報をDBにMERGE INTO する
-            databaseHandler.MergeIntoContact(contact);
-            if (!update)
+            databaseHandler.MergeIntoContact(contact, true);
+            if (regist)
             {
                 inquiryScreen.currentPageNumber = inquiryScreen.currentPageCount;
             }
@@ -332,7 +332,7 @@ namespace contracts_manager_app
             ErrorInitialization();
 
             // 新規登録の場合、テキストボックスも初期化
-            if (!update)
+            if (regist)
             {
                 TextBoxInitialization();
             }
