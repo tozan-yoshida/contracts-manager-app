@@ -14,6 +14,10 @@ namespace contracts_manager_app
     {
         public DataTable contacts { get; set; }
 
+        public DataTable searchedData {  get; set; }
+
+        public bool isAllData {  get; set; }
+
         // データベースとの接続文字列作成
         static string connectionString = @"Data Source = DSP407\SQLEXPRESS; Initial Catalog = contacts-manager-app; User ID = toru_yoshida; Password = 05211210; Encrypt = False; TrustServerCertificate=true";
 
@@ -47,9 +51,13 @@ namespace contracts_manager_app
         private PageButton[]? pageButtons;
 
         // 現在の総ページ数
-        public int currentPageCount {  get; set; }
+        public int allPageCount {  get; set; }
+
+        private int currentPageCount;
         // 現在表示しているページ番号
         public int currentPageNumber { get; set; }
+
+        private string searchText;
 
         public InquiryScreen()
         {
@@ -57,6 +65,10 @@ namespace contracts_manager_app
 
             // DataTableの初期化
             contacts = new DataTable();
+            searchedData = new DataTable();
+
+            searchedData.Columns.Add("num", typeof(int));
+            searchedData.Columns.Add("id", typeof(int));
 
             // DataGridViewの初期化
             dataGridView1.DataSource = contacts;
@@ -150,6 +162,10 @@ namespace contracts_manager_app
             currentPageNumber = 0;
 
             pageButtons = null;
+
+            isAllData = true;
+
+            searchText = "";
         }
 
         /// <summary>
@@ -178,7 +194,16 @@ namespace contracts_manager_app
             databaseHandler.DataAdaptDataTable("SELECT * FROM contacts", contacts);
 
             // ページング処理
-            Paging();
+            if (isAllData)
+            {
+                Paging(contacts);
+                allPageCount = currentPageCount;
+                searchBox.Text = "";
+            }
+            else
+            {
+                Paging(searchedData);
+            }
 
             // dataGridViewの初期表示でセルを選択させない
             ClearSelection();
@@ -296,8 +321,15 @@ namespace contracts_manager_app
             // Deleteクエリ文作成、実行
             databaseHandler.DeleteContact(contact1);
 
+            
+
             // 画面の再表示
             ScreenDisplay();
+
+            if (searchText.Length > 0)
+            {
+                SearchedDataFiltering();
+            }
         }
 
         /// <summary>
@@ -308,13 +340,31 @@ namespace contracts_manager_app
             // 文字列が入力されている場合
             if (searchBox.Text.Length > 0)
             {
+                searchText = searchBox.Text;
+                currentPageNumber = 0;
                 // データにフィルターをかける
-                // 条件はテキストボックスの文字列が名前、備考のいずれかの一部もしくは全部に一致
-                contacts.DefaultView.RowFilter = @$"name LIKE '%{searchBox.Text}%'
-                                                    OR remark LIKE'%{searchBox.Text}%'";
+                SearchedDataFiltering();               
             }
             // dataGridViewの初期表示でセルを選択させない
             ClearSelection();
+        }
+
+        private void SearchedDataFiltering()
+        {
+            searchedData.Clear();
+            DataRow[] dRows = contacts.Select(@$"name LIKE '%{searchText}%'
+                                                    OR remark LIKE'%{searchText}%'", "id ASC");
+            if (dRows.Any())
+            {
+                isAllData = false;
+                int i = 0;
+                foreach (var row in dRows.Cast<DataRow>())
+                {
+                    searchedData.Rows.Add(i, row["id"]);
+                    i++;
+                }
+                ScreenDisplay();
+            }
         }
 
         /// <summary>
@@ -516,6 +566,7 @@ namespace contracts_manager_app
                     ReadCsv(sr, notFirst);
                     // 画面の更新
                     currentPageNumber = 0;
+                    isAllData = true;
                     ScreenDisplay();
                     MessageBox.Show(@$"{fileName}をインポートしました");
                 }
@@ -568,8 +619,8 @@ namespace contracts_manager_app
         private void showAllContacts_Click(object sender, EventArgs e)
         {
             currentPageNumber = 0;
+            isAllData = true;
             ScreenDisplay();
-            searchBox.Text = "";
         }
 
       /// <summary>
@@ -601,25 +652,25 @@ namespace contracts_manager_app
         /// <summary>
         /// ページング処理
         /// </summary>
-        private void Paging()
+        private void Paging(DataTable dataTable)
         {
             // 現在のページ数
-            currentPageCount = PageCount();
+            currentPageCount = PageCount(dataTable);
             // ページボタン作成
             PageButtonCreate();
             // ページ番号表示
             currentPage.Text = @$"ページ{currentPageNumber + 1}/{currentPageCount}";
             // 現在のページに対応するデータ表示
-            PageFiltering();
+            PageFiltering(dataTable);
         }
 
         /// <summary>
         /// 現在のページに対応するデータ表示
         /// </summary>
         /// <param name="pageNumber"></param>
-        private void PageFiltering()
+        private void PageFiltering(DataTable dataTable)
         {
-            contacts.DefaultView.RowFilter = PagingMember();
+            contacts.DefaultView.RowFilter = PagingMember(dataTable);
         }
 
         /// <summary>
@@ -627,14 +678,14 @@ namespace contracts_manager_app
         /// </summary>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        private string PagingMember()
+        private string PagingMember(DataTable dataTable)
         {
             string pagingMember;
             // 通常時
-            if (currentPageNumber * 5 < dataGridView1.RowCount)
+            if (currentPageNumber * 5 < dataTable.Rows.Count)
             {
                 // フィルタ用の文章の作成
-                pagingMember = PagingMemberStatement();
+                pagingMember = PagingMemberStatement(dataTable);
             }
             // 現在のページが最後のページ、かつ連絡先が1件しか存在しない時に
             // その連絡先を削除した場合に行う処理
@@ -643,7 +694,7 @@ namespace contracts_manager_app
                 // 1つ前のページに戻り、フィルタ文の作成を行う
                 currentPageNumber--;
                 currentPage.Text = @$"ページ{currentPageNumber + 1}/{currentPageCount}";
-                pagingMember = PagingMember();
+                pagingMember = PagingMember(dataTable);
             }
             return pagingMember;
         }
@@ -652,19 +703,19 @@ namespace contracts_manager_app
         /// フィルタ用の文章の作成
         /// </summary>
         /// <returns></returns>
-        private string PagingMemberStatement()
+        private string PagingMemberStatement(DataTable dataTable)
         {
             int i = 0;
             // ページの1行目に表示させる連絡先の判定
-            string pagingMember = idSearch(i);
+            string pagingMember = idSearch(i, dataTable);
             // 同ページの2行目~5行目の処理
             for (i = 1; i < 5; i++)
             {
                 // 同じページの2行目以降に連絡先が存在するか
-                if (currentPageNumber * 5 + i < dataGridView1.RowCount)
+                if (currentPageNumber * 5 + i < dataTable.Rows.Count)
                 {
                     // 表示させる連絡先の判定
-                    pagingMember += $@"OR {idSearch(i)}";
+                    pagingMember += $@"OR {idSearch(i, dataTable)}";
                 }
                 // 存在しない場合
                 else
@@ -680,9 +731,19 @@ namespace contracts_manager_app
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
-        private string idSearch(int i)
+        private string idSearch(int i, DataTable dataTable)
         {
-            return @$"id = {dataGridView1.Rows[currentPageNumber * 5 + i].Cells[idIndex].Value}";
+            string idSearch = "";
+            try
+            {
+                idSearch = @$"id = {dataTable.Rows[currentPageNumber * 5 + i]["id"]}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($@"{idSearch}, {ex.Message}");
+
+            }
+            return idSearch;
         }
 
         /// <summary>
@@ -693,12 +754,8 @@ namespace contracts_manager_app
             //ページボタンの初期化
             PageButtonInitialization();
 
-            // 作るページの数
-            // データ数/5 端数切り上げ
-            int pageCount = PageCount();
-
-            pageButtons = new PageButton[pageCount];
-            for(int pageNumber = 0; pageNumber < pageCount; pageNumber++)
+            pageButtons = new PageButton[currentPageCount];
+            for(int pageNumber = 0; pageNumber < currentPageCount; pageNumber++)
             {
                 // ボタンのプロパティ変更
                 pageButtons[pageNumber]  = PageButtonProperty(pageNumber);
@@ -760,9 +817,9 @@ namespace contracts_manager_app
         ///  1ページは5行
         /// </summary>
         /// <returns>現在のページ数</returns>
-        public int PageCount()
+        public int PageCount(DataTable dataTable)
         {
-            return (int)Math.Ceiling((double)dataGridView1.RowCount / 5);
+            return (int)Math.Ceiling((double)dataTable.Rows.Count / 5);
         }
     }
 }
